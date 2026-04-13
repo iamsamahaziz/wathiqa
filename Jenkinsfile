@@ -1,54 +1,52 @@
 pipeline {
     agent any
 
-    environment {
-        // 🔐 clé Mistral depuis Jenkins Credentials
-        MISTRAL_KEY = credentials('mistral-key')
-    }
-
     stages {
 
-        stage('1. Préparation') {
+        stage('1. Start Qdrant') {
             steps {
-                echo '📦 Récupération du code et installation de l-environnement...'
-
-                sh 'python3 -m venv venv'
-                sh './venv/bin/pip install --upgrade pip'
-                sh './venv/bin/pip install -r requirements.txt'
-            }
-        }
-
-        stage('2. Vérification') {
-            steps {
-                echo '🔍 Vérification des fichiers...'
-                sh 'ls -la'
-            }
-        }
-
-        stage('3. Entraînement / Pipeline IA') {
-            steps {
-                echo '🚀 Lancement du script IA...'
-
-                // 🔐 on passe la clé au script
+                echo '🚀 Lancement de Qdrant...'
                 sh '''
-                export MISTRAL_KEY=$MISTRAL_KEY
-                ./venv/bin/python load.py
+                docker rm -f qdrant || true
+                docker run -d --name qdrant -p 6333:6333 qdrant/qdrant
+                sleep 5
                 '''
+            }
+        }
+
+        stage('2. Préparation') {
+            steps {
+                echo '📦 Récupération du code et installation...'
+                sh '''
+                python3 -m venv venv
+                ./venv/bin/pip install --upgrade pip
+                ./venv/bin/pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('3. Pipeline IA') {
+            steps {
+                echo '🚀 Lancement script IA...'
+                withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
+                    sh './venv/bin/python load.py'
+                }
             }
         }
     }
 
     post {
+        always {
+            echo '🧹 Nettoyage...'
+            sh 'docker rm -f qdrant || true'
+        }
+
         success {
-            echo '🎉 Bravo Samah ! Le build est réussi.'
+            echo '🎉 Build réussi !'
         }
 
         failure {
-            echo '❌ Build échoué - vérifier logs Jenkins'
-        }
-
-        always {
-            echo '🏁 Fin du pipeline'
+            echo '❌ Build échoué'
         }
     }
 }
