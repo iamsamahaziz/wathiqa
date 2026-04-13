@@ -14,7 +14,7 @@ pipeline {
             steps {
                 echo 'Lancement du script IA...'
                 // Remplace main.py par le nom de ton script principal
-                sh './venv/bin/python main.py' 
+                sh './venv/bin/python load.py' 
             }
         }
     }
