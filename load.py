@@ -1,7 +1,15 @@
 import requests
 import os
+import time
+from dotenv import load_dotenv
 
-MISTRAL_KEY = "xsdTqWjeVzsdKM9hoihEGQcek4IdirUy"
+load_dotenv()
+
+MISTRAL_KEY = os.getenv("MISTRAL_API_KEY")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+
+if not MISTRAL_KEY:
+    raise ValueError("MISTRAL_API_KEY is missing. Add it to your environment or .env file.")
 
 docs = [
     # === État Civil ===
@@ -94,30 +102,43 @@ for i, doc in enumerate(docs):
     content = open(doc["file"], encoding="utf-8").read()
     print(f"📄 Chargement : {doc['type']}...")
 
-    resp = requests.post(
-        "https://api.mistral.ai/v1/embeddings",
-        headers={"Authorization": f"Bearer {MISTRAL_KEY}"},
-        json={"model": "mistral-embed", "input": [content]}
-    )
+    try:
+        resp = requests.post(
+            "https://api.mistral.ai/v1/embeddings",
+            headers={"Authorization": f"Bearer {MISTRAL_KEY}"},
+            json={"model": "mistral-embed", "input": [content]},
+            timeout=30
+        )
+    except requests.RequestException as err:
+        print(f"❌ Erreur réseau Mistral sur {doc['type']} : {err}")
+        continue
 
     if resp.status_code != 200:
         print(f"❌ Erreur Mistral sur {doc['type']} : {resp.text}")
         continue
 
-    emb = resp.json()["data"][0]["embedding"]
+    try:
+        emb = resp.json()["data"][0]["embedding"]
+    except (KeyError, IndexError, TypeError, ValueError) as err:
+        print(f"❌ Réponse Mistral invalide pour {doc['type']} : {err}")
+        continue
 
-    requests.put(
-        "http://localhost:6333/collections/AdminBot/points",
-        json={"points": [{
-            "id": i + 1,
-            "vector": emb,
-            "payload": {"content": content, "type": doc["type"]}
-        }]}
-    )
+    try:
+        qdrant_resp = requests.put(
+            f"{QDRANT_URL}/collections/AdminBot/points",
+            json={"points": [{
+                "id": i + 1,
+                "vector": emb,
+                "payload": {"content": content, "type": doc["type"]}
+            }]},
+            timeout=30
+        )
+        qdrant_resp.raise_for_status()
+    except requests.RequestException as err:
+        print(f"❌ Erreur Qdrant sur {doc['type']} : {err}")
+        continue
+
     print(f"✅ {doc['type']} chargé !")
-    
-    # Petite pause pour éviter de saturer l'APIpà
-    import time
     time.sleep(0.5)
 
 

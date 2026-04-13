@@ -1,27 +1,86 @@
 pipeline {
     agent any
 
+    environment {
+        VENV_DIR = '.venv'
+        PYTHON = "${VENV_DIR}/bin/python"
+        PIP = "${VENV_DIR}/bin/pip"
+    }
+
     stages {
-        stage('1. Préparation') {
+        stage('Checkout') {
             steps {
-                echo 'Récupération du code et installation de l-environnement...'
-                sh 'python3 -m venv venv'
-                // Utilise ton fichier requirements.txt
-                sh './venv/bin/pip install -r requirements.txt' 
+                checkout scm
             }
         }
-        stage('2. Entraînement / Test IA') {
+
+        stage('Environment Setup') {
             steps {
-                echo 'Lancement du script IA...'
-                // Remplace main.py par le nom de ton script principal
-                sh './venv/bin/python main.py' 
+                sh '''
+                    set -e
+                    python3 -m venv "$VENV_DIR"
+                    "$PIP" install --upgrade pip
+                    "$PIP" install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Python Lint') {
+            steps {
+                sh '''
+                    set -e
+                    "$VENV_DIR/bin/flake8" --select=E9,F63,F7,F82 --show-source --statistics load.py
+                    "$VENV_DIR/bin/pylint" --disable=all --enable=unused-import,unused-variable,undefined-variable,import-error load.py
+                '''
+            }
+        }
+
+        stage('Validate Project Files') {
+            steps {
+                sh '''
+                    set -e
+                    "$PYTHON" -m json.tool Wathiqa.json > /dev/null
+                    "$PYTHON" -m py_compile load.py
+                    "$PYTHON" - <<'PY'
+from html.parser import HTMLParser
+from pathlib import Path
+
+parser = HTMLParser()
+parser.feed(Path("Page_chatbot.html").read_text(encoding="utf-8"))
+print("HTML syntax validation passed")
+PY
+                '''
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh '''
+                    set -e
+                    ! grep -RInE "(MISTRAL_API_KEY\\s*=\\s*['\\\"][^'\\\"]+['\\\"]|AKIA[0-9A-Z]{16}|xox[baprs]-[0-9A-Za-z-]{10,48})" \
+                        --exclude-dir=.git --exclude=Jenkinsfile .
+                '''
+            }
+        }
+
+        stage('Build Artifacts') {
+            steps {
+                sh '''
+                    set -e
+                    mkdir -p artifacts
+                    cp Jenkinsfile load.py requirements.txt Wathiqa.json Page_chatbot.html artifacts/
+                '''
+                archiveArtifacts artifacts: 'artifacts/**', fingerprint: true
             }
         }
     }
-    
+
     post {
         success {
-            echo 'Bravo Samah ! Le build est réussi.'
+            echo '✅ Pipeline Wathiqa terminé avec succès.'
+        }
+        failure {
+            echo '❌ Pipeline Wathiqa en échec. Vérifiez les logs des stages.'
         }
     }
 }
