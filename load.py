@@ -6,7 +6,7 @@ import os
 MISTRAL_KEY = os.getenv("MISTRAL_KEY")
 
 # ✅ IMPORTANT : accessible depuis Jenkins Docker
-QDRANT_URL = "http://host.docker.internal:6333"
+QDRANT_URL = "http://qdrant:6333"
 
 docs = [
     {"type": "Acte de naissance"},
