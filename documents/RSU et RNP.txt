@@ -1,0 +1,56 @@
+Informations extraites de demarchesmaroc.com :
+
+================================================================================
+DÉMARCHE : Inscription au Registre National de la Population (RNP)
+================================================================================
+Le RNP attribue à chaque citoyen un Identifiant Digital Civil et Social (IDCS) de 10 chiffres, indispensable pour s'inscrire au RSU.
+
+Documents nécessaires :
+- CNIE en cours de validité
+- Acte de naissance pour les mineurs
+
+Où aller :
+- Centre de Services aux Citoyens (CSC) de la commune
+
+Coût : Gratuit
+Portail : rnp.ma
+
+
+================================================================================
+DÉMARCHE : Inscription au Registre Social Unifié (RSU)
+================================================================================
+Le RSU est un système national permettant de déterminer l'éligibilité des foyers aux programmes d'aide sociale (AMO Tadamon, aides directes, Tayssir, bourses Minhaty, allocations familiales, Daam Sakane).
+
+Prérequis :
+- Chaque membre du ménage doit avoir un IDCS (via le RNP)
+
+Documents nécessaires :
+- IDCS de chaque membre du ménage
+- Pièces justificatives éventuelles (factures, preuves de résidence)
+
+Comment s'inscrire :
+Option 1 - En ligne :
+1. Créer un compte sur rsu.ma
+2. Remplir le formulaire d'inscription
+3. Valider et soumettre les informations
+4. Obtenir un récépissé de demande
+
+Option 2 - En personne :
+- Se rendre au Centre de Services aux Citoyens (CSC) de la commune
+
+Coût : Gratuit
+
+Programmes accessibles via le RSU :
+- Aides sociales directes : jusqu'à 200 DH/mois par enfant scolarisé + 100 DH pour handicap
+- Bouclier social : minimum 500 DH/mois pour familles vulnérables
+- AMO Tadamon : couverture santé gratuite
+- Programme Tayssir : soutien à la scolarisation
+- Bourses Minhaty : bourses universitaires
+- Allocations familiales
+- Daam Sakane : aide au logement
+
+Mise à jour obligatoire :
+- Signaler tout changement dans un délai de 30 jours (déménagement, naissance, décès, revenu)
+- Révision de l'indice socio-économique possible dans un délai de 60 jours
+
+Portail officiel : rsu.ma

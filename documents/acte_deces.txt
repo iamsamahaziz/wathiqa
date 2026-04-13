@@ -1,0 +1,37 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR L'ACTE DE DÉCÈS AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient la liste exhaustive des documents requis pour demander et utiliser un Acte de Décès au Maroc (auprès des communes, des consulats, et des organismes de santé/retraite pour la succession).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de l'Acte de Décès au Maroc (Commune / Arrondissement)
+--------------------------------------------------------------------------------
+Pour obtenir l'acte de décès officiel, un membre de la famille (conjoint, ascendant, descendant ou tuteur) doit se rendre à l'arrondissement du lieu de décès ou résidence avec les pièces suivantes :
+- Le certificat de décès : Ce document médical officiel est délivré par le médecin ayant constaté le décès (c'est sur cette base que l'acte administratif est rédigé).
+- Le livret de famille : Une copie du livret de famille marocain du défunt.
+- Pièce d'identité du demandeur : Une copie légalisée de la CNIE (Carte Nationale) du déclarant pour justifier du lien de parenté.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de l'Acte de Décès depuis l'étranger (Pour les MRE)
+--------------------------------------------------------------------------------
+Les Marocains Résidant à l'Étranger s'adressent au consulat marocain de leur juridiction.
+Il faut présenter la pièce d'identité du demandeur (CNIE ou passeport) et L'UN des documents suivants concernant le défunt :
+- Une copie du livret de famille.
+- Un ancien extrait d'acte de décès.
+- Une ancienne copie intégrale de l'acte.
+- À défaut : Indiquer clairement le lieu, l'année et le numéro de la déclaration originale.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Utilisation de l'Acte de Décès (Succession, CNSS, Pension, Banques)
+--------------------------------------------------------------------------------
+Une fois l'acte en main, les héritiers doivent informer les différentes caisses (banques, CNSS, CMR, impôts) dans un délai de 30 jours, en constituant le dossier de pension de survivant / d'allocation de décès suivant :
+- L’acte de décès officiel original (obtenu à la mairie).
+- Le certificat d’héritiers (Acte d'hérédité / عقد الإراثة) délivré par un notaire ou des adouls.
+- Copie de la CIN du défunt.
+- Copie de la CIN du déclarant (ou héritier).
+- Justificatif de pension du défunt (Attestation CNSS, CMR, etc.).
+- Relevé d'Identité Bancaire (RIB) des bénéficiaires / héritiers.

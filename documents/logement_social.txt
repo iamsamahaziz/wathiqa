@@ -1,0 +1,50 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LA DEMANDE DE LOGEMENT SOCIAL AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les documents requis et les conditions d'éligibilité pour demander un logement social et bénéficier de l'aide au logement « Daam Sakane » au Maroc.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de Logement Social (Programme Daam Sakane - دعم السكن)
+--------------------------------------------------------------------------------
+L'aide au logement « Daam Sakane » est une subvention directe de l'État pour faciliter l'achat d'une résidence principale. L'inscription se fait en ligne sur la plateforme officielle www.daamsakane.ma.
+
+Montant de l'aide :
+- Logement ≤ 300 000 DH : aide de 100 000 DH.
+- Logement entre 300 000 et 700 000 DH : aide de 70 000 DH.
+
+Documents requis (à joindre sur la plateforme en ligne) :
+- Copie de la Carte d'Identité Nationale (CNIE).
+- Le permis d'habiter : Le permis d'habiter du bien immobilier à acquérir (doit dater à partir du 01 janvier 2023).
+- Un certificat de non-propriété : Prouvant que le demandeur ne possède aucun bien immobilier destiné à l'habitation au Maroc.
+- Un certificat de mariage ou acte de décès : Pour les veuves (selon la situation familiale).
+- Une attestation de loyer : Si applicable.
+
+Conditions d'éligibilité :
+- Être de nationalité marocaine (les MRE y sont également éligibles).
+- Ne posséder aucun bien immobilier au Maroc destiné à l'habitation.
+- Ne jamais avoir bénéficié d'une aide au logement subventionnée par l'État.
+- Le logement à acquérir doit disposer d'un permis d'habiter datant du 01/01/2023 ou après.
+- Le logement doit faire l'objet d'une première vente.
+
+Procédure :
+1. L'acheteur choisit sa résidence principale.
+2. Il remplit sa demande sur la plateforme www.daamsakane.ma.
+3. La Caisse de Dépôt et de Gestion (CDG) examine le dossier et répond sous 7 jours.
+4. Le notaire finalise le contrat de vente et reçoit le montant de l'aide.
+
+* Coût : Gratuit (frais de notaire plafonnés à 2 500 DH TTC pour les logements ≤ 300 000 DH).
+* Délai de traitement : Environ 1 mois pour l'ensemble du processus.
+* Validité : L'aide est accordée une seule fois par personne éligible.
+* Programme valable jusqu'en 2028.
+
+
+--------------------------------------------------------------------------------
+RÈGLES IMPORTANTES (Anti-spéculation)
+--------------------------------------------------------------------------------
+- Le bénéficiaire doit occuper le logement comme résidence principale pendant au minimum 5 ans.
+- Toute revente avant 5 ans impose la restitution intégrale de l'aide (100 000 ou 70 000 DH) + paiement de la taxe sur le profit immobilier.
+- Pour les MRE : Le logement peut être mis gratuitement à disposition du conjoint, d'un ascendant ou descendant direct.
+
+Contact : +212 5 37 66 90 00 (Daam Sakane).

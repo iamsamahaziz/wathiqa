@@ -1,0 +1,51 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LE CONTRAT DE TRAVAIL AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient la liste des documents requis pour l'établissement d'un contrat de travail au Maroc. Elle précise les documents standards pour un citoyen marocain, ainsi que la procédure obligatoire et très stricte du Contrat de Travail d'Étranger (CTE) pour les expatriés.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Établissement d'un "Contrat de Travail d'Étranger" (CTE) au Maroc
+--------------------------------------------------------------------------------
+L'embauche d'un ressortissant étranger au Maroc passe par plusieurs étapes exigeant divers documents.
+
+ÉTAPE 1 : Démarche de l'employeur auprès de l'ANAPEC 
+Pour prouver qu'aucun Marocain ne peut occuper le poste, l'employeur doit fournir :
+- Une demande écrite : Adressée au Directeur Général de l'ANAPEC.
+- Le formulaire de renseignements : Fourni par l'ANAPEC.
+- La fiche descriptive du poste : Détaillant les compétences et conditions requises.
+- La fiche annonce : Décrivant l'offre d'emploi (destinée à être publiée dans 2 journaux : francophone et arabophone).
+- Pièce d'identité de l'employeur : (Copie de la CIN ou du passeport).
+
+ÉTAPE 2 : Étude du contrat par le Ministère du Travail
+Une fois l'accord de l'ANAPEC obtenu, le dossier d'études du contrat doit contenir :
+- Le Contrat de Travail Étranger (CTE) : En 5 exemplaires originaux signés.
+- Demande de visa de travail : En 2 exemplaires.
+- Qualifications professionnelles de l'étranger : Diplômes certifiés, attestations de travail précédentes, etc.
+- Attestation de non-cumul : Prouvant que le salarié n'a pas de contrat actif avec un autre employeur au Maroc.
+- Autorisation temporaire d'occuper un emploi : (Dispositif utilisé en cas d'occupation sans contrat préalable) en 5 exemplaires.
+
+ÉTAPE 3 : Obtention du Titre de Séjour (Carte Immatriculation Salarié)
+Une fois le CTE visé, le salarié étranger doit se rendre à la Wilaya avec :
+- Le Contrat de travail CTE validé par le Ministère.
+- Son passeport (et copie du visa d'entrée ou tampon d'entrée si requis).
+- 4 photos d'identité récentes.
+- Le formulaire de demande de titre de séjour.
+- Un extrait de casier judiciaire.
+- Un extrait d'acte de naissance.
+- Un justificatif de domicile au Maroc (contrat de bail légalisé ou certificat d'hébergement).
+- Un certificat médical (délivré par un médecin au Maroc).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Contrat de Travail Standard (Citoyen Marocain)
+--------------------------------------------------------------------------------
+Le contrat de travail d'un citoyen marocain (CDI, CDD ou Intérim) relève du Code du Travail sans passage obligé des ministères. L'employeur demande classiquement les documents suivants pour votre intégration :
+- Photocopie légalisée de la Carte Nationale d'Identité (CNIE).
+- CV actualisé et Copies certifiées conformes des diplômes.
+- Le numéro d'immatriculation à la CNSS (si vous avez déjà travaillé, sinon l'entreprise le fera).
+- Un Relevé d'Identité Bancaire (RIB) pour le versement du salaire.
+- 2 photographies d'identité (pour le dossier RH de l'entreprise).
+- Extrait de casier judiciaire (optionnel, selon le poste visé).
+- Un certificat médical d'aptitude à l'embauche.

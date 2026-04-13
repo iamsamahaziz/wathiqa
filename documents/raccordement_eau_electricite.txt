@@ -1,0 +1,59 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LE RACCORDEMENT EAU ET ÉLECTRICITÉ AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les documents requis pour demander un raccordement (branchement) à l'eau potable et à l'électricité au Maroc, auprès des opérateurs : ONEE, Lydec, Radeema, Redal, ou les Sociétés Régionales Multiservices (SRM).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Raccordement définitif Eau et Électricité (pour habitation ou local)
+--------------------------------------------------------------------------------
+Pour obtenir un branchement définitif au réseau d'eau potable et d'électricité, le propriétaire doit déposer un dossier complet auprès de l'agence commerciale de son opérateur local.
+
+Documents requis :
+- Copie de la Carte d'Identité Nationale (CNIE) : Pour les Marocains. Carte de séjour ou passeport pour les étrangers.
+- Demande d'abonnement / branchement : Formulaire fourni par l'opérateur (ONEE, Lydec, Radeema, Redal ou SRM), dûment rempli et signé par le propriétaire.
+- Autorisation de construire (Permis de construire) : Copie du permis de construire délivré par la commune.
+- Le permis d'habiter ou certificat de conformité : Obligatoire pour valider le branchement définitif (prouve que la construction est achevée et conforme aux normes).
+- Titre foncier ou attestation de propriété : Preuve de propriété du bien (acte d'achat, certificat de propriété, etc.).
+- Plans approuvés : Plan de masse et plans de façades approuvés par les autorités compétentes.
+
+Documents supplémentaires selon la situation :
+- Pour les locataires : Contrat de bail légalisé ou autorisation écrite du propriétaire.
+- Pour les copropriétaires / héritiers : Procuration légalisée ou attestation d'héritage (acte d'hérédité).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Raccordement provisoire Eau et Électricité (pour chantier)
+--------------------------------------------------------------------------------
+Pendant la phase de construction, un raccordement provisoire peut être demandé pour alimenter le chantier.
+
+Documents requis :
+- Copie de la CNIE du propriétaire ou du maître d'ouvrage.
+- Autorisation de construire (Permis de construire).
+- Demande de branchement provisoire : Formulaire de l'opérateur.
+- Indication du besoin en puissance (électricité) ou en débit (eau).
+- Ordre de service (si la demande est faite par l'entrepreneur au nom du propriétaire).
+
+
+--------------------------------------------------------------------------------
+PROCÉDURE GÉNÉRALE DE RACCORDEMENT
+--------------------------------------------------------------------------------
+1. Dépôt du dossier complet à l'agence commerciale de l'opérateur (ONEE, Lydec, Radeema, Redal, SRM).
+2. Visite technique : Un technicien évalue la faisabilité et détermine le point de raccordement.
+3. Réception et acceptation du devis : L'opérateur établit un devis des frais de raccordement.
+4. Paiement des frais de raccordement.
+5. Réalisation des travaux : Installation du compteur et mise en service.
+
+* Important : Pour l'électricité, l'installation intérieure doit être réalisée par un électricien agréé. Le respect des normes est contrôlé avant la pose du compteur.
+* Délai : Variable selon l'opérateur et la zone. Il est conseillé d'entamer les démarches au moins 1 mois avant le début des besoins.
+
+
+--------------------------------------------------------------------------------
+CONTACTS DES OPÉRATEURS PRINCIPAUX
+--------------------------------------------------------------------------------
+- ONEE (Office National de l'Électricité et de l'Eau potable) : www.one.org.ma
+- Lydec (Casablanca) : www.lydec.ma
+- Radeema (Marrakech) : www.radeema.ma
+- Redal (Rabat-Salé) : www.redal.ma
+- Amendis (Tanger-Tétouan) : www.amendis.ma

@@ -1,0 +1,36 @@
+Informations extraites de demarchesmaroc.com :
+
+Les impôts locatifs concernent les revenus fonciers perçus par les propriétaires qui louent leurs biens immobiliers au Maroc.
+
+Obligation de déclaration :
+- Tout propriétaire percevant des loyers doit déclarer ses revenus fonciers
+- Déclaration annuelle à la Direction Générale des Impôts (DGI)
+
+Taux d'imposition (IR sur revenus fonciers) :
+- Abattement forfaitaire de 40% sur les loyers bruts perçus
+- Le montant net (60% du loyer) est soumis au barème progressif de l'IR :
+  * 0 à 30 000 DH : 0%
+  * 30 001 à 50 000 DH : 10%
+  * 50 001 à 60 000 DH : 20%
+  * 60 001 à 80 000 DH : 30%
+  * 80 001 à 180 000 DH : 34%
+  * Au-delà de 180 000 DH : 38%
+
+Retenue à la source :
+- Pour les locations à des personnes morales : retenue à la source de 10% sur le montant brut du loyer
+- Pour les locations à des particuliers : déclaration annuelle
+
+Documents nécessaires pour la déclaration :
+- Formulaire de déclaration annuelle des revenus fonciers
+- Contrats de bail
+- Quittances de loyer ou relevés bancaires
+- Copie de la CNIE du propriétaire
+
+Délai :
+- Déclaration annuelle avant le 1er mars de l'année suivante
+
+Où déposer :
+- Direction Régionale des Impôts du lieu du bien
+- En ligne sur le portail : tax.gov.ma
+
+Portail officiel : tax.gov.ma

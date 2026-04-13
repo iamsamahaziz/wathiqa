@@ -1,0 +1,69 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR L'AMO ET LA CNSS AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les listes exhaustives des documents requis pour chaque démarche liée à la Caisse Nationale de Sécurité Sociale (CNSS) et à l'Assurance Maladie Obligatoire (AMO).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de remboursement maladie CNSS (Accès à l'AMO)
+--------------------------------------------------------------------------------
+Pour obtenir le remboursement des frais de soins médicaux (consultations, médicaments, actes biologiques, etc.) par la CNSS, vous devez préparer les documents suivants :
+- La feuille de soins maladie (ou dentaire) : Elle doit être dûment complétée, signée et cachetée par le médecin traitant (et le pharmacien le cas échéant).
+- L'ordonnance médicale : L'originale, comportant la signature et le cachet du médecin.
+- Les prospectus médicaux : Fournir le code-barre (ou le ppv) découpé sur les boîtes des médicaments achetés.
+- La facture originale : Reçus justifiant les frais de la consultation médicale, des examens de biologie, de radiologie, etc.
+- L'immatriculation CNSS : Votre numéro d'immatriculation ou copie de votre carte CNSS.
+* Délai légal : Le dossier doit être déposé dans un délai de 60 jours maximum après le premier acte médical.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Inscription à l'AMO Tadamon (Programme pour familles à faibles revenus)
+--------------------------------------------------------------------------------
+Pour s'inscrire à la couverture médicale gratuite AMO Tadamon (qui remplace le RAMED), voici les documents et conditions requises :
+- Preuve d'identité : Carte Nationale d'Identité (CNIE) ou passeport du chef de famille.
+- Preuve de domicile : Justificatif de résidence.
+- Acte de mariage : Pour justifier la situation familiale.
+- Actes de naissance : Pour chacun des enfants à charge.
+* Conditions strictes préalables :
+  1. Tous les membres de la famille doivent être inscrits au RNP (Registre National des Populations) pour obtenir leur IDCS.
+  2. La famille doit être inscrite au RSU (Registre Social Unifié) pour évaluer l'éligibilité socio-économique.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Inscription d'un salarié étranger à la CNSS (Immatriculation)
+--------------------------------------------------------------------------------
+Tout employé étranger travaillant dans le secteur privé au Maroc doit obligatoirement être déclaré. Le dossier nécessite la coopération du salarié et de l'employeur.
+
+Documents requis pour le Salarié étranger :
+- Formulaire CNSS (réf. 321-1-06) : Volet salarié dûment rempli et signé.
+- Passeport : Copie valide du passeport.
+- Titre de séjour : Carte de séjour ou visa de long séjour (Obligatoire).
+- Contrat de travail : Contrat certifié conforme au droit marocain ou attestation d'emploi.
+- Relevé d'Identité Bancaire (RIB) : D'un compte bancaire marocain en dirhams.
+- Photos : 2 photos d'identité récentes.
+- Permis de travail : Document l'autorisant à travailler au Maroc.
+- Numéro d'affiliation : Le numéro d'affiliation CNSS de l'employeur.
+
+Documents requis pour l'Employeur :
+- Formulaire CNSS (réf. 321-1-06) : Volet employeur dûment rempli et signé.
+- Pièces légales de l'entreprise : Statuts, registre de commerce, justificatif de domiciliation, etc.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Déclaration mensuelle des employés à la CNSS par l'entreprise
+--------------------------------------------------------------------------------
+Chaque mois, l'entreprise doit obligatoirement déclarer ses salariés pour qu'ils soient couverts (si la déclaration n'est pas faite en ligne via Damancom) :
+- Le Bordereau de Déclaration des Salaires (BDS) : Délivré par la CNSS, il doit être complété avec les jours travaillés et le salaire brut, cacheté et signé par l'employeur.
+- Formulaire d'ajout (Réf. 512-1-10) : À fournir uniquement si un nouveau salarié ne figure pas encore sur le BDS préétabli.
+- Le Bordereau de Paiement des Cotisations (BPC) : À remplir et envoyer à la banque avec le paiement avant le 10 du mois suivant.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Postuler à une offre d'emploi ou au concours de recrutement de la CNSS
+--------------------------------------------------------------------------------
+Si vous souhaitez soumettre votre candidature lors d'un concours officiel pour rejoindre le personnel de la CNSS, votre dossier doit contenir :
+- La fiche de candidature : Généralement fournie en annexe avec l'annonce officielle du poste.
+- Votre CV : Un Curriculum Vitae actualisé et détaillé.
+- Lettre de motivation : Une lettre personnalisée adressée au service de recrutement.
+- Copies des diplômes : Preuves de vos qualifications universitaires ou professionnelles équivalentes.

@@ -1,0 +1,57 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LA PROCURATION AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les documents requis pour établir une procuration au Maroc (chez un notaire/avocat) ou depuis l'étranger (au consulat marocain).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Établir une Procuration au Maroc (chez un notaire ou avocat)
+--------------------------------------------------------------------------------
+Le mandant (celui qui délègue) et le mandataire (celui qui reçoit les pouvoirs) doivent se rendre ensemble chez un notaire ou un avocat.
+
+Documents requis :
+- CNIE valide du mandant : L'original de la Carte Nationale d'Identité Électronique du mandant.
+- CNIE valide du mandataire : L'original de la Carte Nationale d'Identité Électronique du mandataire.
+- Le modèle de procuration : Formulaire imprimé et renseigné (fourni par le notaire ou l'avocat).
+- Justificatifs liés aux biens concernés : Si la procuration concerne un bien immobilier (titre foncier, certificat de propriété, etc.).
+
+La procuration doit être signée devant le notaire ou l'avocat pour être valide.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Établir une Procuration au Consulat du Maroc (pour les MRE)
+--------------------------------------------------------------------------------
+Les Marocains Résidant à l'Étranger (MRE) peuvent établir une procuration au consulat marocain de leur pays de résidence.
+
+Documents requis :
+- CNIE valide du mandant : Recto et verso (original + copie scannée pour le dépôt en ligne).
+- Copie de la CNIE du mandataire : Copie de la carte d'identité de la personne recevant les pouvoirs.
+- Justificatif de séjour : Preuve de résidence dans le pays étranger.
+- Le formulaire de procuration : Modèle disponible au consulat ou téléchargeable en PDF/Word (en français ou en arabe/bilingue).
+
+Procédure :
+1. Prendre rendez-vous en ligne sur rdv.consulat.ma.
+2. Importer les documents justificatifs en ligne.
+3. Se présenter au consulat à la date convenue.
+4. Signer la procuration devant l'agent consulaire.
+
+* Important (depuis 2017) : Toute procuration relative à un bien immobilier doit obligatoirement être notariée (loi n°69-16).
+* Depuis 2019 : Les consulats ne délivrent plus de procurations authentiques. L'authentification se fait désormais par un notaire local ou via une légalisation de signature au consulat.
+
+
+--------------------------------------------------------------------------------
+TYPES DE PROCURATION DISPONIBLES
+--------------------------------------------------------------------------------
+1. Procuration générale : Donne au mandataire le pouvoir de gérer l'ensemble des affaires du mandant sans restriction.
+2. Procuration spéciale : Limite les pouvoirs du mandataire à des actes précis (ex: vente d'un bien immobilier spécifique).
+3. Mandat légal : Destiné aux avocats pour représentation en justice.
+
+
+--------------------------------------------------------------------------------
+INFORMATIONS PRATIQUES
+--------------------------------------------------------------------------------
+* Coût : Entre 1 500 et 4 000 DH (selon le type de procuration et la complexité). Les droits de timbre au consulat sont de 220 MAD par acte.
+* Délai de traitement : Le jour même (au Maroc) ; quelques jours (au consulat après rendez-vous).
+* Validité : 1 an (sauf résiliation anticipée par le mandant).
+* Résiliation : Possible à tout moment par le mandant, sans la présence du mandataire.

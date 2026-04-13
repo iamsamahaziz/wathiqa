@@ -1,0 +1,31 @@
+Informations extraites de demarchesmaroc.com :
+
+La pension d'invalidité est une prestation versée par la CNSS aux salariés déclarés inaptes à exercer une activité rémunérée.
+
+Conditions d'éligibilité :
+- Être affilié à la CNSS
+- Avoir cumulé au moins 1 080 jours de cotisation
+- Dont 108 jours pendant les 12 mois précédant l'invalidité
+- L'invalidité doit être constatée par un médecin agréé par la CNSS
+
+Documents nécessaires :
+- Formulaire de demande de pension d'invalidité (CNSS)
+- Certificat médical détaillé établi par un médecin agréé
+- Copie de la CNIE
+- Attestation de salaire
+- Relevé d'identité bancaire (RIB)
+- Rapport médical justifiant l'incapacité
+
+Montant :
+- Calculé selon le salaire moyen des 8 dernières années déclarées
+- Minimum : 50% du SMIG
+- Maximum : 70% du salaire de référence
+
+Types d'invalidité :
+- Invalidité de 1er groupe : invalidité partielle (possibilité d'exercer une activité légère)
+- Invalidité de 2ème groupe : invalidité totale (aucune activité possible)
+- Invalidité de 3ème groupe : invalidité totale avec besoin d'assistance d'une tierce personne
+
+Où déposer :
+- Agence CNSS la plus proche
+- En ligne sur le portail : cnss.ma

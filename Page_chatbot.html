@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wathiqa — وثيقة | Assistant Administratif Marocain</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --emerald: #1B7A5A;
+  --emerald-light: #E8F5EE;
+  --emerald-dark: #0F5A3E;
+  --gold: #C8A45A;
+  --gold-light: #FDF6E3;
+  --red: #C1272D;
+  --red-light: #FFF0F0;
+  --cream: #FDFBF7;
+  --sand: #F5F0E8;
+  --text: #1A1A1A;
+  --text-muted: #6B6560;
+  --white: #FFFFFF;
+  --border: #E8E0D8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ======== HERO ======== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+  background: linear-gradient(170deg, var(--cream) 0%, var(--sand) 40%, var(--emerald-light) 100%);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L35 15L45 15L37 22L40 32L30 26L20 32L23 22L15 15L25 15Z' fill='none' stroke='%231B7A5A' stroke-width='0.3' opacity='0.08'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  color: var(--emerald);
+  font-weight: 600;
+  margin-bottom: 2rem;
+  animation: fadeDown 0.8s ease-out;
+  box-shadow: 0 2px 12px rgba(27,122,90,0.06);
+}
+
+.hero-badge .dot {
+  width: 8px; height: 8px;
+  background: var(--emerald);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+.hero-flag {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: fadeDown 0.6s ease-out;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.8s ease-out 0.1s both;
+  color: var(--emerald-dark);
+}
+
+.hero h1 .arabic {
+  font-size: 0.6em;
+  color: var(--gold);
+  display: block;
+  margin-top: 0.3rem;
+  font-weight: 400;
+}
+
+.hero-subtitle {
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 1.5rem auto 2.5rem;
+  line-height: 1.7;
+  animation: fadeDown 0.8s ease-out 0.2s both;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeDown 0.8s ease-out 0.3s both;
+}
+
+.btn-primary {
+  background: var(--emerald);
+  color: var(--white);
+  border: none;
+  padding: 16px 36px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 4px 20px rgba(27,122,90,0.25);
+}
+
+.btn-primary:hover {
+  background: var(--emerald-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(27,122,90,0.3);
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--emerald);
+  border: 2px solid var(--emerald);
+  padding: 14px 36px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+}
+
+.btn-secondary:hover {
+  background: var(--emerald-light);
+  transform: translateY(-2px);
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== STATS BAR ======== */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2.5rem 2rem;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--emerald);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ======== CATEGORIES ======== */
+.categories {
+  padding: 5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.section-title h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: var(--emerald-dark);
+  margin-bottom: 0.8rem;
+}
+
+.section-title p {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.cat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.8rem 1.4rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(27,122,90,0.1);
+  border-color: var(--emerald);
+}
+
+.cat-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.cat-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.cat-card .cat-ar {
+  font-size: 0.85rem;
+  color: var(--gold);
+  direction: rtl;
+}
+
+.cat-card .cat-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  background: var(--sand);
+  padding: 3px 10px;
+  border-radius: 100px;
+  display: inline-block;
+}
+
+/* ======== HOW IT WORKS ======== */
+.how-it-works {
+  padding: 5rem 2rem;
+  background: var(--white);
+}
+
+.steps {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  padding: 2rem 0;
+  position: relative;
+}
+
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 70px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--emerald), var(--border));
+}
+
+.step-num {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  background: var(--emerald);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.step-content h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--emerald-dark);
+}
+
+.step-content p {
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ======== FEATURES ======== */
+.features {
+  padding: 5rem 2rem;
+  background: linear-gradient(170deg, var(--emerald-light) 0%, var(--cream) 100%);
+}
+
+.features-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  box-shadow: 0 8px 30px rgba(27,122,90,0.08);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--emerald-light);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--emerald-dark);
+}
+
+.feature-card p {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ======== CONTACTS ======== */
+.contacts {
+  padding: 4rem 2rem;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+}
+
+.contacts-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.contact-card {
+  background: var(--sand);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.contact-card:hover {
+  background: var(--emerald-light);
+}
+
+.contact-icon {
+  font-size: 1.3rem;
+}
+
+.contact-card span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.contact-card a {
+  color: var(--emerald);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ======== FOOTER ======== */
+footer {
+  background: var(--emerald-dark);
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  padding: 2.5rem 2rem;
+}
+
+footer .footer-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--white);
+  margin-bottom: 0.5rem;
+}
+
+footer .footer-ar {
+  color: var(--gold);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+footer p {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* ======== CHATBOT BUTTON ======== */
+.chat-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  background: var(--emerald);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 6px 30px rgba(27,122,90,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 999;
+  animation: bounceIn 0.6s ease-out 1s both;
+}
+
+.chat-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 40px rgba(27,122,90,0.45);
+}
+
+.chat-trigger svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+
+.chat-trigger .badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  animation: pulse 2s infinite;
+}
+
+@keyframes bounceIn {
+  from { opacity: 0; transform: scale(0.5); }
+  60% { transform: scale(1.1); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ======== RESPONSIVE ======== */
+@media (max-width: 768px) {
+  .stats-bar { gap: 1.5rem; }
+  .stat-number { font-size: 2rem; }
+  .step { gap: 1rem; }
+  .hero-cta { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Chatbot IA disponible 24/7
+  </div>
+  <div class="hero-flag">🇲🇦</div>
+  <h1>
+    Wathiqa
+    <span class="arabic">وثيقة</span>
+  </h1>
+  <p class="hero-subtitle">
+    Votre assistant intelligent pour toutes les démarches administratives au Maroc.
+    Rapide, précis et bilingue.
+  </p>
+  <div class="hero-cta">
+    <button class="btn-primary" onclick="openChat()">Démarrer une conversation</button>
+    <a href="#categories" class="btn-secondary">Découvrir les services</a>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-number">57</div>
+    <div class="stat-label">Démarches couvertes</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">10</div>
+    <div class="stat-label">Domaines administratifs</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">2</div>
+    <div class="stat-label">Langues (FR / دارجة)</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number">24/7</div>
+    <div class="stat-label">Disponible</div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="categories" id="categories">
+  <div class="section-title">
+    <h2>Nos domaines de service</h2>
+    <p>Choisissez une catégorie pour trouver votre démarche</p>
+  </div>
+  <div class="categories-grid">
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">📋</span>
+      <h3>État civil</h3>
+      <div class="cat-ar">الحالة المدنية</div>
+      <span class="cat-count">7 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">🪪</span>
+      <h3>Identité</h3>
+      <div class="cat-ar">الهوية</div>
+      <span class="cat-count">4 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">✈️</span>
+      <h3>Voyage et visa</h3>
+      <div class="cat-ar">السفر والفيزا</div>
+      <span class="cat-count">5 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">🚗</span>
+      <h3>Véhicule</h3>
+      <div class="cat-ar">السيارة</div>
+      <span class="cat-count">6 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">💼</span>
+      <h3>Emploi</h3>
+      <div class="cat-ar">الخدمة</div>
+      <span class="cat-count">6 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">🏥</span>
+      <h3>CNSS et santé</h3>
+      <div class="cat-ar">الصندوق والصحة</div>
+      <span class="cat-count">7 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">👨‍👩‍👧</span>
+      <h3>Famille</h3>
+      <div class="cat-ar">العائلة</div>
+      <span class="cat-count">6 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">🏠</span>
+      <h3>Logement</h3>
+      <div class="cat-ar">السكن</div>
+      <span class="cat-count">7 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">💰</span>
+      <h3>Finances et impôts</h3>
+      <div class="cat-ar">المالية والضرائب</div>
+      <span class="cat-count">6 démarches</span>
+    </div>
+    <div class="cat-card" onclick="openChat()">
+      <span class="cat-icon">🎓</span>
+      <h3>Aide sociale et études</h3>
+      <div class="cat-ar">المساعدة والدراسة</div>
+      <span class="cat-count">3 démarches</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works">
+  <div class="section-title">
+    <h2>Comment ça marche ?</h2>
+    <p>3 étapes simples pour obtenir vos informations</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Choisissez votre catégorie</h3>
+        <p>Sélectionnez parmi les 10 domaines administratifs ou posez directement votre question en français ou en darija.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Précisez votre démarche</h3>
+        <p>Choisissez la démarche exacte parmi les sous-catégories proposées (CNIE, passeport, carte grise, etc.).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Recevez votre réponse complète</h3>
+        <p>Wathiqa vous donne les documents nécessaires, le lieu, le délai, le coût et des conseils pratiques — en français avec un résumé en darija.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-title">
+    <h2>Pourquoi Wathiqa ?</h2>
+    <p>Un assistant conçu pour les citoyens marocains</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Intelligence Artificielle</h3>
+      <p>Propulsé par Mistral AI et un système RAG qui garantit des réponses précises basées sur des documents vérifiés.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Bilingue FR / دارجة</h3>
+      <p>Interface et réponses en français et darija marocaine pour une accessibilité maximale à tous les citoyens.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Réponse instantanée</h3>
+      <p>Obtenez vos informations en quelques secondes, 24h/24, 7j/7, sans attente ni déplacement.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>57 démarches couvertes</h3>
+      <p>De la CNIE au visa, du permis de conduire à la retraite — toutes les procédures essentielles en un seul endroit.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <h3>Informations fiables</h3>
+      <p>Base de données vérifiée avec avertissement clair lorsque l'information ne provient pas de la base officielle.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Accessible partout</h3>
+      <p>Fonctionne sur mobile, tablette et ordinateur. Aucune installation requise.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTS -->
+<section class="contacts">
+  <div class="section-title">
+    <h2>Contacts utiles / أرقام مهمة</h2>
+  </div>
+  <div class="contacts-grid">
+    <div class="contact-card">
+      <span class="contact-icon">📞</span>
+      <div>
+        <span>Allo Administration</span><br>
+        <a href="tel:3737">3737</a>
+      </div>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">🌐</span>
+      <div>
+        <span>Portail Idarati</span><br>
+        <a href="https://www.idarati.ma" target="_blank">www.idarati.ma</a>
+      </div>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">🪪</span>
+      <div>
+        <span>CNIE / Passeport</span><br>
+        <a href="https://www.cnie.ma" target="_blank">www.cnie.ma</a>
+      </div>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">🏥</span>
+      <div>
+        <span>CNSS</span><br>
+        <a href="https://www.cnss.ma" target="_blank">www.cnss.ma</a>
+      </div>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">💰</span>
+      <div>
+        <span>Impôts / الضرائب</span><br>
+        <a href="https://www.tax.gov.ma" target="_blank">www.tax.gov.ma</a>
+      </div>
+    </div>
+    <div class="contact-card">
+      <span class="contact-icon">🌍</span>
+      <div>
+        <span>MRE / مغاربة العالم</span><br>
+        <a href="https://www.consulat.ma" target="_blank">www.consulat.ma</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Wathiqa</div>
+  <div class="footer-ar">وثيقة — مساعدك في الإجراءات الإدارية بالمغرب</div>
+  <p>Projet réalisé par Samah AZIZ & Keltoum AGAZZARA — Module d'Intelligence Artificielle — 2026</p>
+</footer>
+
+<!-- CHAT TRIGGER BUTTON -->
+<button class="chat-trigger" onclick="openChat()" title="Parler à Wathiqa">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/><path d="M7 9h10v2H7zm0-3h10v2H7zm0 6h7v2H7z"/></svg>
+  <span class="badge"></span>
+</button>
+
+
+<!-- ======== CHAT WIDGET ======== -->
+<div id="chatWidget" style="display:none;position:fixed;bottom:100px;right:24px;width:390px;max-width:calc(100vw - 32px);height:560px;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.18);z-index:1000;flex-direction:column;overflow:hidden;">
+  <div style="background:var(--emerald);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:40px;height:40px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">🇲🇦</div>
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:1rem;font-family:'Playfair Display',serif;">Wathiqa — وثيقة</div>
+        <div style="color:rgba(255,255,255,0.75);font-size:0.72rem;">Assistant administratif marocain · 24/7</div>
+      </div>
+    </div>
+    <button onclick="closeChat()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div id="chatMessages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--cream);"></div>
+  <div style="padding:10px 14px;background:#fff;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-shrink:0;">
+    <input id="chatInput" type="text" placeholder="Posez votre question..."
+      style="flex:1;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:0.9rem;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.2s;"
+      onkeydown="if(event.key==='Enter')sendMessage()"
+      onfocus="this.style.borderColor='var(--emerald)'"
+      onblur="this.style.borderColor='var(--border)'"
+    />
+    <button onclick="sendMessage()" id="sendBtn"
+      style="background:var(--emerald);border:none;width:42px;height:42px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<style>
+.msg-bot{display:flex;justify-content:flex-start;}
+.msg-user{display:flex;justify-content:flex-end;}
+.msg-bubble{max-width:88%;padding:10px 14px;border-radius:16px;font-size:0.88rem;line-height:1.65;word-break:break-word;}
+.msg-bubble-bot{background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);}
+.msg-bubble-user{background:var(--emerald);color:#fff;border-bottom-right-radius:4px;}
+.msg-typing{display:flex;gap:4px;align-items:center;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:4px;width:60px;}
+.msg-typing span{width:7px;height:7px;background:var(--emerald);border-radius:50%;animation:typing 1.2s infinite;}
+.msg-typing span:nth-child(2){animation-delay:0.2s;}
+.msg-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:0.4;}30%{transform:translateY(-5px);opacity:1;}}
+.cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.cat-chip{background:var(--emerald-light);border:1.5px solid var(--emerald);color:var(--emerald-dark);border-radius:20px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.cat-chip:hover{background:var(--emerald);color:#fff;}
+</style>
+
+<script>
+// ⚠️ Remplacez par l'URL de votre webhook n8n
+const WEBHOOK_URL = 'http://localhost:5678/webhook/adminbot';
+
+const GREETINGS = /^(hi|hello|bonjour|salam|salut|بوجور|السلام|اهلا|مرحبا|bonsoir|coucou|hey|yo|slt|bjr|wach|واش|كيفاش|كيداير|آش|labas|لاباس)[\s!?.]*$/i;
+
+const CATEGORIES = [
+  {icon:'📋', label:'État civil'},
+  {icon:'🪪', label:'Identité / CNIE'},
+  {icon:'✈️', label:'Voyage & Visa'},
+  {icon:'🚗', label:'Véhicule / Permis'},
+  {icon:'💼', label:'Emploi / CNSS'},
+  {icon:'🏥', label:'Santé / AMO'},
+  {icon:'👨‍👩‍👧', label:'Famille / Mariage'},
+  {icon:'🏠', label:'Logement / Urbanisme'},
+  {icon:'💰', label:'Impôts / Finances'},
+  {icon:'🎓', label:'Études / Aide sociale'},
+];
+
+let welcomeShown = false;
+
+function openChat() {
+  const w = document.getElementById('chatWidget');
+  w.style.display = 'flex';
+  document.querySelector('.chat-trigger .badge').style.display = 'none';
+  if (!welcomeShown) { showWelcome(); welcomeShown = true; }
+  setTimeout(() => document.getElementById('chatInput').focus(), 100);
+}
+
+function closeChat() {
+  document.getElementById('chatWidget').style.display = 'none';
+}
+
+function showWelcome() {
+  const c = document.getElementById('chatMessages');
+  // Message de bienvenue
+  const w1 = document.createElement('div');
+  w1.className = 'msg-bot';
+  w1.innerHTML = '<div class="msg-bubble msg-bubble-bot">👋 Bonjour ! Je suis <strong>Wathiqa</strong>, votre assistant pour les démarches administratives au Maroc.<br><br>Choisissez une catégorie ou posez directement votre question 👇</div>';
+  c.appendChild(w1);
+  // Boutons catégories
+  appendCategoryChips(c);
+  c.scrollTop = c.scrollHeight;
+}
+
+function appendCategoryChips(container) {
+  const w2 = document.createElement('div');
+  w2.className = 'msg-bot';
+  const b = document.createElement('div');
+  b.className = 'msg-bubble msg-bubble-bot';
+  const chips = document.createElement('div');
+  chips.className = 'cat-chips';
+  CATEGORIES.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'cat-chip';
+    chip.textContent = cat.icon + ' ' + cat.label;
+    chip.onclick = () => sendMessageWithText('Quelles sont les démarches pour : ' + cat.label + ' ?');
+    chips.appendChild(chip);
+  });
+  b.appendChild(chips);
+  w2.appendChild(b);
+  container.appendChild(w2);
+}
+
+function addMessage(html, role) {
+  const c = document.getElementById('chatMessages');
+  const wrap = document.createElement('div');
+  wrap.className = role === 'user' ? 'msg-user' : 'msg-bot';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble ' + (role === 'user' ? 'msg-bubble-user' : 'msg-bubble-bot');
+  bubble.innerHTML = html;
+  wrap.appendChild(bubble);
+  c.appendChild(wrap);
+  c.scrollTop = c.scrollHeight;
+}
+
+function fmt(text) {
+  let t = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  t = t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  t = t.replace(/\n/g,'<br>');
+  return t;
+}
+
+function showTyping() {
+  const c = document.getElementById('chatMessages');
+  const w = document.createElement('div');
+  w.className = 'msg-bot'; w.id = 'typingIndicator';
+  w.innerHTML = '<div class="msg-typing"><span></span><span></span><span></span></div>';
+  c.appendChild(w);
+  c.scrollTop = c.scrollHeight;
+}
+function hideTyping() { const t = document.getElementById('typingIndicator'); if(t) t.remove(); }
+
+async function sendMessageWithText(question) {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('sendBtn');
+  input.value = '';
+  input.disabled = true;
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  addMessage(fmt(question), 'user');
+  showTyping();
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({question})
+    });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    hideTyping();
+    addMessage(fmt(data.answer || 'Désolé, je n\'ai pas pu répondre.'), 'bot');
+  } catch(e) {
+    hideTyping();
+    addMessage('⚠️ Impossible de joindre le serveur. Vérifiez que n8n est actif et que le webhook est bien activé.', 'bot');
+  }
+  input.disabled = false;
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  input.focus();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const question = input.value.trim();
+  if (!question) return;
+  // Message vague → afficher menu catégories
+  if (GREETINGS.test(question)) {
+    addMessage(fmt(question), 'user');
+    input.value = '';
+    const c = document.getElementById('chatMessages');
+    const w = document.createElement('div');
+    w.className = 'msg-bot';
+    const b = document.createElement('div');
+    b.className = 'msg-bubble msg-bubble-bot';
+    b.innerHTML = '😊 Bonjour ! Sur quel sujet puis-je vous aider ?<br><br>';
+    const chips = document.createElement('div');
+    chips.className = 'cat-chips';
+    CATEGORIES.forEach(cat => {
+      const chip = document.createElement('button');
+      chip.className = 'cat-chip';
+      chip.textContent = cat.icon + ' ' + cat.label;
+      chip.onclick = () => sendMessageWithText('Quelles sont les démarches pour : ' + cat.label + ' ?');
+      chips.appendChild(chip);
+    });
+    b.appendChild(chips);
+    w.appendChild(b);
+    c.appendChild(w);
+    c.scrollTop = c.scrollHeight;
+    return;
+  }
+  sendMessageWithText(question);
+}
+</script>
+
+</body>
+</html>

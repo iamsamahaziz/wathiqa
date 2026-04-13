@@ -1,0 +1,38 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR L'ATTESTATION D'HÉBERGEMENT AU MAROC / FRANCE (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient la liste exhaustive des documents requis pour obtenir un certificat d'hébergement (aussi appelé attestation d'accueil), utilisé principalement pour les demandes de visa de court séjour en France par les ressortissants marocains.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Obtenir un Certificat d'Hébergement (Attestation d'Accueil) pour un Visa France
+--------------------------------------------------------------------------------
+L'hébergeant (la personne résidant en France qui accueille) doit se rendre à la mairie de son lieu de résidence pour effectuer la demande. Voici les documents qu'il doit fournir :
+
+Documents requis pour l'hébergeant (celui qui accueille en France) :
+- Pièce d'identité valide : Passeport ou carte nationale d'identité, avec un titre de séjour valide en France (si l'hébergeant est étranger).
+- Justificatif de logement : Bail de location ou avis de taxe foncière (pour prouver que le logement est apte à accueillir le visiteur).
+- Facture récente de domicile : Facture d'électricité, d'eau ou de téléphone confirmant la résidence effective à l'adresse indiquée.
+- Preuve de ressources financières : Bulletins de salaire récents ou avis d'imposition (pour démontrer la capacité à subvenir aux besoins du visiteur).
+- Attestation des conditions d'accueil : Garantissant un espace suffisant et des conditions de vie décentes.
+- Timbre fiscal de 30 € : Obligatoire pour valider la demande auprès des autorités.
+- Numéro de passeport du visiteur : Pour identifier le voyageur et établir l'attestation.
+- Formulaire Cerfa n°10798 : À remplir sur place à la mairie.
+- Lettre parentale (cas spécifique) : Uniquement si le visiteur est un mineur non accompagné, pour assurer l'accord des parents ou tuteurs.
+
+
+--------------------------------------------------------------------------------
+INFORMATIONS PRATIQUES
+--------------------------------------------------------------------------------
+* Où déposer la demande : À la mairie du lieu de résidence de l'hébergeant en France.
+* Coût : 30 € (timbre fiscal).
+* Validité : Le certificat est valable pour un séjour de 90 jours maximum dans l'espace Schengen.
+* Délai de traitement : De quelques jours à plusieurs semaines selon la mairie.
+* Le certificat est limité aux dates et au visiteur mentionnés dans le document.
+
+
+--------------------------------------------------------------------------------
+UTILISATION PAR LE VISITEUR MAROCAIN
+--------------------------------------------------------------------------------
+Une fois le certificat d'hébergement obtenu et envoyé au visiteur marocain, celui-ci doit l'inclure dans son dossier de demande de visa Schengen auprès du consulat de France au Maroc (ou du prestataire TLS Contact), en complément des autres pièces du dossier de visa.

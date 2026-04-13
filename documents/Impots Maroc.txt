@@ -1,0 +1,32 @@
+Informations:
+Les impôts au Maroc incluent :
+- Impôt sur le Revenu (IR) : Sur les salaires, revenus fonciers, etc. (Taux progressif).
+- Impôt sur les Sociétés (IS) : Sur les bénéfices des entreprises.
+- Taxe sur la Valeur Ajoutée (TVA) : 20% (standard), 7, 10, 14% (taux réduits).
+- Taxe d'Habitation (TH) : Annuelle pour résidences principales/secondaires.
+
+Documents:
+- Attestation de revenus (IR).
+- Déclarations comptables (IS/TVA).
+- Avis d'imposition envoyé par la TGR.
+- NIF (Numéro d'Identification Fiscale).
+
+Coût:
+Dépôt en ligne gratuit. Calculé selon le barème fiscal.
+
+Délai:
+- TH : Avant fin mai de chaque année.
+- IR Saliarial : Mensuel.
+- IR Global : Annuel (avant fin avril).
+- TVA : Mensuel ou trimestriel.
+
+Où aller:
+- Direction Générale des Impôts (DGI) - www.tax.gov.ma
+- Trésorerie Générale du Royaume (TGR) pour le paiement.
+
+Étapes:
+1. S'inscrire sur le portail Simpl-DGI.
+2. Télédéclarer les revenus ou bénéfices.
+3. Télépayer les sommes dues sur le portail ou via banque.
+4. Télécharger les reçus et attestations en ligne.
+5. Recevoir les notifications fiscales annuelles.

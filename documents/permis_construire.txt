@@ -1,0 +1,31 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LE PERMIS DE CONSTRUIRE AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient la liste exhaustive des documents requis pour l'obtention du permis de construire (pour bâtir, agrandir ou rénover), conformément aux normes d'urbanisme au Maroc (via Rokhas.ma ou en commune).
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de Permis de Construire (Bâtir, agrandir ou rénover)
+--------------------------------------------------------------------------------
+Le dossier de demande de permis de construire doit comprendre les pièces suivantes :
+
+1. Formulaires et Engagements administratifs :
+   - Formulaire de demande : 2 exemplaires de l'imprimé (délivré par la commune ou disponible sur Rokhas.ma).
+   - Formulaire de renseignements : 1 copie complétée par le maître d'ouvrage (le propriétaire).
+   - Lettre d'engagement : 3 exemplaires par laquelle le demandeur s'engage à respecter les plans approuvés « NE VARIETUR ».
+   - Les relevés d'information : Émis par les agences municipales compétentes.
+
+2. Identité et Propriété :
+   - Carte d'Identité Nationale (CNIE) : 2 copies avec la signature légalisée du demandeur.
+   - Certificat de propriété : Preuve de propriété du terrain ou du bâtiment existant.
+   - Plan cadastral : Le plan cadastral du terrain concerné (obligatoire si le terrain est immatriculé à la conservation foncière).
+
+3. Plans et Architecture :
+   - Contrat d'architecte : 2 exemplaires (obligatoire pour toute construction à usage autre que l'habitation individuelle, ou de plus de 240 m²).
+   - Plan d'implantation : 8 exemplaires à l'échelle d'au moins 1/2000 (ou 1/5000 pour une commune rurale).
+   - Dessins de construction : 8 exemplaires comprenant les plans, coupes et façades.
+   - Photomontage (Intégration paysagère) : Photomontage de l'état actuel du terrain, incluant les constructions voisines et les abords du site.
+
+* Dépôt du dossier : Le dépôt peut s'effectuer en ligne via la plateforme nationale Rokhas.ma (dématérialisé) ou directement au guichet de l'urbanisme de la commune concernée.
+* Validité : Le permis est délivré dans un délai moyen de 15 à 30 jours et reste valable un an. Si les travaux ne débutent pas dans ce délai, une nouvelle demande est nécessaire.

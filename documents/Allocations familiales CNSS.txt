@@ -1,0 +1,71 @@
+Informations extraites de demarchesmaroc.com :
+
+Les allocations familiales au Maroc sont une prestation sociale versée mensuellement aux salariés et pensionnés affiliés à la CNSS qui ont des enfants à charge.
+
+Qui peut en bénéficier :
+- Être salarié déclaré à la CNSS (secteur privé)
+- Avoir cumulé au moins 108 jours de cotisations sur une période de 6 mois civils
+- Percevoir un salaire mensuel au moins égal à 60% du SMIG (ou 60% du SMAG pour le secteur agricole)
+- L'enfant doit être à charge sur la base d'une décision judiciaire ou légale
+- Maximum 6 enfants par assuré
+
+Conditions d'âge des enfants :
+- Jusqu'à 12 ans en règle générale (secteur privé)
+- Jusqu'à 18 ans si l'enfant suit une formation professionnelle ou un apprentissage
+- Jusqu'à 21 ans s'il poursuit des études universitaires
+- Sans limite d'âge en cas de handicap
+- Dans le secteur public, l'âge limite est fixé à 21 ans (hors handicap)
+
+Montants des allocations familiales (2025-2026) :
+- 1er, 2e et 3e enfant : 300 DH par enfant/mois
+- 4e, 5e et 6e enfant : 100 DH par enfant/mois (ancien montant : 36 DH, augmentation de 177%)
+
+Rappel rétroactif :
+- Application rétroactive à partir du 1er janvier 2023
+- Calcul du rappel : 64 DH x 24 mois = 1 536 DH par enfant (4e, 5e, 6e)
+- Exemple pour 3 enfants concernés : 1 536 x 3 = 4 608 DH
+
+Documents nécessaires pour la demande :
+- Formulaire de demande d'allocations familiales (réf. CNSS 311-1-14)
+- Copies de la CNIE de l'assuré et du conjoint
+- Copie de la carte CNSS
+- Actes de naissance de chaque enfant à charge
+- Certificat de scolarité pour enfants de plus de 12 ans
+- Acte de mariage (ou acte de divorce/décès avec attestation de prise en charge)
+- En cas de handicap : certificat médical spécifique
+- RIB ou chèque annulé pour le versement
+
+Documents pour déclarer l'épouse sur le portail CNSS :
+- Copie de la CNIE de l'épouse (recto-verso, format PDF)
+- Déclaration sur l'honneur (à télécharger sur cnss.ma)
+- Contrat de mariage (format PDF)
+
+Documents pour déclarer les enfants :
+- CNIE du père et de la mère (format PDF)
+- Contrat de mariage (format PDF)
+- Acte de naissance de l'enfant (format PDF)
+
+Procédure de demande :
+1. Rassembler les documents requis
+2. Déposer la demande :
+   - Secteur privé : remettre le dossier à l'employeur qui le transmet à la CNSS, ou en ligne via le portail Taawidaty (macnss.ma)
+   - Secteur public : s'adresser au service RH ou au bureau CNPS compétent
+3. Traitement et suivi du dossier en ligne ou via Allô-Damane : 080 200 7200
+4. Versement mensuel par virement bancaire, automatique après acceptation
+
+Déclaration en ligne des enfants (portail MaCNSS) :
+1. Se rendre sur macnss.ma
+2. Cliquer sur le service « Taâwidati »
+3. Saisir le numéro d'immatriculation CNSS et le mot de passe
+4. Cliquer sur « Allocations familiales » > « Créer une demande »
+5. Choisir « Déclaration d'un nouvel enfant »
+6. Remplir le formulaire et valider
+7. Joindre les pièces justificatives
+8. Télécharger le reçu de dépôt comme preuve
+
+En cas de divorce ou séparation :
+- L'allocation est versée au parent qui a la garde légale des enfants
+- Présentation du jugement de divorce et des actes de naissance requise
+
+Portail officiel : macnss.ma
+Centre d'appel : 080 200 7200 ou 080 203 33 33

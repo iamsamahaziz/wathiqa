@@ -1,0 +1,48 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LE CERTIFICAT DE PROPRIÉTÉ AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les documents et informations requis pour demander un certificat de propriété (titre foncier) auprès de l'ANCFCC au Maroc.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de Certificat de Propriété sur place (ANCFCC)
+--------------------------------------------------------------------------------
+Le certificat de propriété est un document officiel délivré par l'Agence Nationale de la Conservation Foncière, du Cadastre et de la Cartographie (ANCFCC / Mohafadati). Il atteste de la propriété légale d'un bien immobilier.
+
+Pour l'obtenir sur place, rendez-vous aux Services Extérieurs de l'ANCFCC de votre ville avec :
+- Copie de la Carte d'Identité Nationale (CNIE) : Du propriétaire ou du demandeur autorisé.
+- Le numéro du titre foncier : Identifiant unique du bien immobilier enregistré à la conservation foncière.
+- Paiement des droits de timbre : 100 DH.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de Certificat de Propriété en ligne (ANCFCC)
+--------------------------------------------------------------------------------
+Depuis 2019, la demande peut se faire entièrement en ligne via le site de l'ANCFCC.
+
+Documents et informations nécessaires :
+- Copie scannée de la CNIE : Du propriétaire ou du demandeur.
+- Le numéro du titre foncier : Identifiant du bien immobilier.
+- La commune et la référence cadastrale : Informations de localisation du bien.
+- Un numéro de téléphone valide : Pour recevoir la notification SMS de disponibilité.
+- Paiement en ligne par carte de crédit : 100 DH.
+
+Procédure en ligne :
+1. Accéder au site officiel de l'ANCFCC.
+2. Remplir les formulaires avec les informations du bien (numéro de titre, commune, référence cadastrale).
+3. Effectuer le paiement en ligne.
+4. Recevoir un numéro de suivi pour suivre l'état de la demande.
+5. Recevoir une notification SMS une fois le certificat prêt.
+6. Télécharger le certificat au format PDF sécurisé via « Suivi des demandes ».
+
+
+--------------------------------------------------------------------------------
+INFORMATIONS PRATIQUES
+--------------------------------------------------------------------------------
+* Coût : 100 DH (sur place ou en ligne).
+* Délai de délivrance : 24 heures (jours ouvrables).
+* Validité : 3 mois à compter de la date de délivrance. Au-delà, il faut en redemander un nouveau.
+* Depuis l'étranger : La demande en ligne est accessible depuis l'étranger pour les MRE ou non-résidents possédant un bien au Maroc.
+* En cas de décès du propriétaire : Les héritiers peuvent demander le certificat dans le cadre de la succession.
+* Contact ANCFCC : +212 6 60 10 26 83/84/85.

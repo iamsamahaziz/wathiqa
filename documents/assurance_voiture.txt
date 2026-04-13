@@ -1,0 +1,58 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR L'ASSURANCE VOITURE AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient les documents requis pour souscrire, renouveler ou déclarer un sinistre d'assurance automobile au Maroc.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Souscription à une Assurance Auto au Maroc
+--------------------------------------------------------------------------------
+L'assurance automobile est obligatoire au Maroc pour tout véhicule immatriculé. La couverture minimale requise par la loi est la Responsabilité Civile (RC).
+
+Documents requis pour souscrire :
+- Carte grise du véhicule : L'original ou une copie de la carte d'immatriculation (carte grise) du véhicule.
+- Copie de la Carte d'Identité Nationale (CNIE) : Ou copie du passeport pour les étrangers.
+- Copie du permis de conduire : Permis valide du conducteur principal.
+- Formulaire de souscription : Fourni par la compagnie d'assurance choisie, à remplir sur place ou en ligne.
+
+Où souscrire :
+- En agence physique : Auprès de n'importe quelle compagnie d'assurance (Wafa Assurance, Sanlam, RMA, Atlanta Sanad, AXA, etc.).
+- En ligne : Via les simulateurs et plateformes des compagnies d'assurance.
+
+
+--------------------------------------------------------------------------------
+TYPES DE COUVERTURE DISPONIBLES
+--------------------------------------------------------------------------------
+1. Responsabilité Civile (RC) - Obligatoire :
+   - Couvre uniquement les dommages causés à autrui.
+   - Tarif le plus bas. Ne couvre pas vos propres dommages.
+   - Recommandée pour : Petit budget et voiture ancienne.
+
+2. Formule Intermédiaire (RC + options) :
+   - Inclut la RC + garanties vol, incendie, bris de glace, etc.
+   - Bon compromis entre prix et sécurité.
+   - Recommandée pour : Conducteur urbain fréquent.
+
+3. Tous Risques :
+   - Couvre presque tous les dommages (collision, vandalisme, catastrophes naturelles).
+   - Protection maximale. Prime plus élevée.
+   - Recommandée pour : Voiture neuve ou haut de gamme.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Déclaration d'un Sinistre Auto
+--------------------------------------------------------------------------------
+En cas d'accident de voiture, voici les documents et étapes nécessaires :
+- Le constat amiable : À remplir et signer sur place avec l'autre conducteur impliqué.
+- La déclaration de sinistre : À envoyer à votre compagnie d'assurance dans un délai de 5 jours ouvrables maximum.
+- Les justificatifs : Photos des dégâts, copie du constat amiable signé, procès-verbal de police (si nécessaire).
+- Expertise : La compagnie envoie un expert pour constater les dégâts et estimer le coût de réparation.
+
+
+--------------------------------------------------------------------------------
+INFORMATIONS PRATIQUES
+--------------------------------------------------------------------------------
+* Renouvellement : Le contrat d'assurance se renouvelle automatiquement chaque année, sauf résiliation.
+* Résiliation possible en cas de : Vente du véhicule, changement d'assureur, ou non-paiement des primes.
+* Facteurs influençant le prix : Profil du conducteur (âge, expérience, antécédents), type et ancienneté du véhicule, usage (privé ou professionnel), et options choisies.

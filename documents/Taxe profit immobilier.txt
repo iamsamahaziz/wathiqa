@@ -1,0 +1,32 @@
+Informations extraites de demarchesmaroc.com :
+
+La taxe sur le profit immobilier (TPI) est un impôt prélevé sur les plus-values réalisées lors de la vente d'un bien immobilier au Maroc.
+
+Taux d'imposition :
+- 20% du profit net réalisé (prix de vente - prix d'achat - charges)
+- Minimum de 3% du prix de vente
+
+Calcul du profit :
+- Profit = Prix de cession - (Prix d'acquisition + frais d'acquisition + frais de travaux)
+- Les frais d'acquisition sont estimés forfaitairement à 15% du prix d'achat
+- Le prix d'acquisition est revalorisé par un coefficient fixé par arrêté ministériel
+
+Cas d'exonération :
+- Vente de la résidence principale occupée depuis au moins 6 ans (si profit < 140 000 DH)
+- Vente d'un bien dont le prix est inférieur à 140 000 DH
+- Donation entre ascendants et descendants, entre époux, entre frères et sœurs
+- Expropriation pour utilité publique
+
+Déclaration et paiement :
+- Déclaration obligatoire dans les 30 jours suivant la vente
+- Paiement de l'impôt en même temps que la déclaration
+
+Documents nécessaires :
+- Formulaire de déclaration fiscale
+- Copie du contrat de vente
+- Copie du contrat d'achat initial
+- Justificatifs des travaux effectués (le cas échéant)
+
+Où déposer :
+- Direction Générale des Impôts (DGI) du lieu du bien
+- En ligne sur le portail : tax.gov.ma

@@ -1,0 +1,284 @@
+{
+  "name": "Wathiqa",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "adminbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2832,
+        1760
+      ],
+      "id": "3a1c9aa8-9eb0-4fc4-9091-1686ace25d21",
+      "name": "Webhook",
+      "webhookId": "64fbed6c-8db1-4cde-ae7e-f073c73c21f2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst question = (body.question || '').trim();\nif (!question) throw new Error('Question vide');\nreturn [{ json: { question } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2976,
+        2032
+      ],
+      "id": "8c519624-afdc-4e7f-a83e-8b5fa0e89599",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const emb = $input.first().json.data?.[0]?.embedding;\nif (!emb) throw new Error('Erreur embedding');\nconst question = $('Code in JavaScript').first().json.question;\n\nreturn [{ json: {\n  question,\n  qdrantBody: JSON.stringify({\n    vector: emb,\n    limit: 3,\n    with_payload: true,\n    score_threshold: 0.20\n  })\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3376,
+        1888
+      ],
+      "id": "db7697cb-2c2f-4fb3-9807-f98e646a8481",
+      "name": "Qdrant body"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xsdTqWjeVzsdKM9hoihEGQcek4IdirUy"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: \"mistral-embed\", input: [$json.question] }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3200,
+        1792
+      ],
+      "id": "3b4a7785-7b6b-4072-93be-f133817aea06",
+      "name": "Mistral Embed"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://qdrant:6333/collections/AdminBot/points/search",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.qdrantBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3632,
+        1760
+      ],
+      "id": "5190b3c8-7923-4636-a8f5-9161565c46fb",
+      "name": "Qdrant search"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.result || [];\nconst question = $('Code in JavaScript').first().json.question;\n\nlet context = '';\nresults.forEach(r => {\n  context += `---\\n${r.payload.content}\\n\\n`;\n});\n\nconst hasResults = results.length > 0;\n\nconst systemMsg = `Tu es Wathiqa, assistant expert des démarches administratives marocaines.\nSois précis et clair. Réponds d'abord en français, puis ajoute un résumé en darija marocaine en dessous sous le titre \"🇲🇦 بالدارجة :\"\n\nRÈGLES :\n1. Si des documents sont fournis, base ta réponse UNIQUEMENT dessus.\n2. Si aucun document n'est fourni ou s'ils ne contiennent pas la réponse, tu peux répondre avec tes connaissances générales MAIS ajoute à la fin :\n   \"⚠️ Cette information ne provient pas de ma base de données officielle. Je vous recommande de vérifier auprès de l'administration concernée ou d'appeler le 3737.\"\n3. Ne fabrique jamais de faux documents ou procédures.\n\nFormat de réponse (utilise uniquement les sections pertinentes) :\n📋 DOCUMENTS NÉCESSAIRES : ...\n📍 OÙ ALLER : ...\n⏱️ DÉLAI : ...\n💰 COÛT : ...\n💡 CONSEIL : ...`;\n\nreturn [{ json: {\n  mistralBody: JSON.stringify({\n    model: \"mistral-small-latest\",\n    temperature: 0.1,\n    messages: [\n      { role: \"system\", content: systemMsg },\n      { role: \"user\", content: hasResults \n        ? `Documents :\\n${context}\\nQuestion : ${question}` \n        : `Aucun document trouvé dans la base.\\nQuestion : ${question}` \n      }\n    ]\n  })\n}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3840,
+        1888
+      ],
+      "id": "590a0238-1ab1-4d44-884c-6bac176a808d",
+      "name": "Build Prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer xsdTqWjeVzsdKM9hoihEGQcek4IdirUy"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.mistralBody }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4096,
+        1760
+      ],
+      "id": "d51e602f-d41e-409a-a45f-dfbafdfcdba5",
+      "name": "Mistral Completion"
+    },
+    {
+      "parameters": {
+        "jsCode": "const answer = $input.first().json.choices?.[0]?.message?.content || 'Erreur réponse.';\nreturn [{ json: { answer: answer.trim() } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4304,
+        1760
+      ],
+      "id": "27c40b9c-4173-4ffb-8bdb-1697b0b8dc89",
+      "name": "Réponse Finale"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        4512,
+        1760
+      ],
+      "id": "2ac94146-6ba9-495c-b6df-606fc4007cea",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Mistral Embed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Embed": {
+      "main": [
+        [
+          {
+            "node": "Qdrant body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant body": {
+      "main": [
+        [
+          {
+            "node": "Qdrant search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant search": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Mistral Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral Completion": {
+      "main": [
+        [
+          {
+            "node": "Réponse Finale",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Réponse Finale": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e4944db1-0c34-4ff3-bf75-f0ddd18bfd3c",
+  "meta": {
+    "instanceId": "9576b14302da787c8ad24c40b326b4247bdc955a8ae3ebe5d0eaf24270441c60"
+  },
+  "id": "Q9Yb95lm8yXeVKzO",
+  "tags": []
+}

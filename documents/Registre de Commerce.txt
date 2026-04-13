@@ -1,0 +1,31 @@
+Informations:
+Le Registre de Commerce (RC) est obligatoire pour toute entreprise au Maroc.
+Le "Modèle 7" est l'extrait de certification de l'immatriculation au RC.
+Les modifications (changement de siège, capital, gérant) doivent être déposées au RC.
+
+Documents (Modèle 7) :
+- Copie de la CIN (CNIE) du gérant.
+- Formulaire de demande (Réf. 1/2004).
+- Copie des statuts (si société).
+- Certificats de dépôt du capital (pour modification).
+- Extrait de journal d'annonces légales (JAL) - si modification.
+
+Coût:
+- Demande de Modèle 7 : 100 DH.
+- Inscription RC : 150 DH (personne physique), 350 DH (personne morale).
+
+Délai:
+- Modèle 7 : Immédiat ou 24h.
+- Modification RC : 7 à 15 jours.
+
+Où aller:
+- Tribunal de Commerce (Greffe du RC) local.
+- Portail DirectInfo - www.directinfo.ma
+
+Étapes:
+1. S'inscrire sur DirectInfo (pour services en ligne).
+2. Télédéclarer la modification ou demande de Modèle 7.
+3. Télécharger les documents et statuts modifiés.
+4. Payer les frais sur le portail ou via banque.
+5. Suivre l'avancement sur DirectInfo.
+6. Recevoir l'attestation signée électriquement.

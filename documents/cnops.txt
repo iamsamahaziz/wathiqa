@@ -1,0 +1,38 @@
+================================================================================
+DOCUMENTS NÉCESSAIRES POUR LA CNOPS AU MAROC (BASE DE CONNAISSANCES RAG)
+================================================================================
+
+Cette base de données contient la liste exhaustive des documents requis pour chaque démarche liée à la Caisse Nationale des Organismes de Prévoyance Sociale (CNOPS) concernant l'Assurance Maladie Obligatoire (AMO) du secteur public.
+
+
+--------------------------------------------------------------------------------
+DÉMARCHE : Demande de remboursement de frais médicaux (CNOPS)
+--------------------------------------------------------------------------------
+Pour obtenir le remboursement des soins ambulatoires (consultations, examens, médicaments) auprès de votre mutuelle CNOPS (ex: Mutuelle de l’Éducation Nationale, des Fonctionnaires, etc.), vous devez préparer un dossier complet avec les documents originaux suivants :
+
+1. La feuille de soins :
+   - Dûment complétée et lisible.
+   - Doit comporter l'identité de l'assuré et du patient.
+   - Doit inclure le code INPE du médecin, son cachet, sa signature, la date et le montant payé.
+
+2. L'ordonnance médicale originale :
+   - Signée et cachetée par le médecin prescripteur.
+   - Signée et cachetée par le pharmacien.
+   - Les identifiants nationaux (INPE, etc.) du médecin et du pharmacien doivent obligatoirement y figurer.
+
+3. Les factures originales et détaillées :
+   - Les factures doivent être nominatives, datées et numérotées.
+   - Elles doivent impérativement mentionner l'Identifiant Fiscal (IF) et l'Identifiant Commun de l'Entreprise (ICE) du prestataire (laboratoire, pharmacie, opticien, clinique...).
+
+4. Les codes-barres des médicaments :
+   - À découper des emballages ou coller (numéro de série de la boîte).
+   - Obligatoire pour tout médicament remboursable.
+
+5. Documents complémentaires selon la nature des soins :
+   - Soins dentaires complexes : Note d'honoraires détaillée et radiographies (avant/après).
+   - Rééducation ou dialyse : Le calendrier détaillé des séances effectuées.
+   - Dispositifs médicaux / Prothèses : Le devis, l'accord préalable (si requis), et la facture.
+   - Affection Longue Durée (ALD) : Un formulaire ALD dûment validé ou l'attestation de prise en charge avec accord ETM.
+
+* Dépôt du dossier : Le dossier doit être déposé auprès de l'agence de votre mutuelle (CNOPS) et non directement à la CNOPS, sauf pour certaines procédures d'urgence ou accords spécifiques.
+* Délai légal : Le dossier de remboursement pour soins ambulatoires doit être déposé dans un délai de 60 jours après le paiement des soins ou la fin du traitement.
