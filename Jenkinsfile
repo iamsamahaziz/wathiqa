@@ -29,8 +29,13 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    "$VENV_DIR/bin/flake8" --select=E9,F63,F7,F82 --show-source --statistics load.py
-                    "$VENV_DIR/bin/pylint" --disable=all --enable=unused-import,unused-variable,undefined-variable,import-error load.py
+                    PY_FILES="$(find . -maxdepth 1 -name '*.py' -print)"
+                    if [ -z "$PY_FILES" ]; then
+                        echo "No Python files to lint."
+                        exit 0
+                    fi
+                    "$VENV_DIR/bin/flake8" --select=E9,F63,F7,F82 --show-source --statistics $PY_FILES
+                    "$VENV_DIR/bin/pylint" --disable=all --enable=unused-import,unused-variable,undefined-variable,import-error $PY_FILES
                 '''
             }
         }
