@@ -1,7 +1,7 @@
 import requests
 import os
 
-MISTRAL_KEY = "xsdTqWjeVzsdKM9hoihEGQcek4IdirUy"
+MISTRAL_KEY = "MISTRAL_KEY"
 
 docs = [
     # === État Civil ===
