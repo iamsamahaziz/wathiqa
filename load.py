@@ -5,8 +5,8 @@ import os
 # 🔐 clé depuis variable d'environnement (best practice)
 MISTRAL_KEY = os.getenv("MISTRAL_KEY")
 
-# ✅ IMPORTANT : accessible depuis Jenkins Docker
-QDRANT_URL = "http://host.docker.internal:6333"
+# ✅ IMPORTANT : accessible depuis Jenkins Docker (configurable via variable d'environnement)
+QDRANT_URL = os.getenv("QDRANT_URL", "http://host.docker.internal:6333")
 
 docs = [
     {"type": "Acte de naissance"},

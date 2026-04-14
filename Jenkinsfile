@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    
+    environment {
+        QDRANT_URL = 'http://172.17.0.1:6333'
+    }
 
     stages {
 
