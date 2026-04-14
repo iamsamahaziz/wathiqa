@@ -2,8 +2,8 @@ import requests
 import time
 import os
 
-# 🔐 clé depuis variable d'environnement (best practice)
-MISTRAL_KEY = os.getenv("MISTRAL_KEY")
+# 🔐 clé depuis variable d'environnement (MISTRAL_KEY ou MISTRAL_API_KEY)
+MISTRAL_KEY = os.getenv("MISTRAL_KEY") or os.getenv("MISTRAL_API_KEY")
 
 # ✅ IMPORTANT : accessible depuis Jenkins Docker (configurable via variable d'environnement)
 QDRANT_URL = os.getenv("QDRANT_URL", "http://host.docker.internal:6333")
