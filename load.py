@@ -1,6 +1,7 @@
 import requests
 import time
 import os
+from retry import retry
 
 # 🔐 clé depuis variable d'environnement (MISTRAL_KEY ou MISTRAL_API_KEY)
 MISTRAL_KEY = os.getenv("MISTRAL_KEY") or os.getenv("MISTRAL_API_KEY")
@@ -50,12 +51,23 @@ for i, doc in enumerate(docs):
         print(f"⚠️ Aucun contenu pour {doc['type']}")
         continue
 
-    # 🤖 Embeddings Mistral
-    resp = requests.post(
-        "https://api.mistral.ai/v1/embeddings",
-        headers={"Authorization": f"Bearer {MISTRAL_KEY}"},
-        json={"model": "mistral-embed", "input": [content]}
-    )
+    @retry(tries=3, delay=2, backoff=2)
+    def call_mistral():
+        # 🤖 Embeddings Mistral
+        resp = requests.post(
+            "https://api.mistral.ai/v1/embeddings",
+            headers={"Authorization": f"Bearer {MISTRAL_KEY}"},
+            json={"model": "mistral-embed", "input": [content]}
+        )
+        if resp.status_code == 429:
+            raise Exception("Rate limit exceeded")
+        return resp
+
+    try:
+        resp = call_mistral()
+    except Exception as e:
+        print(f"❌ Erreur Mistral sur {doc['type']} après plusieurs essais : {e}")
+        continue
 
     if resp.status_code != 200:
         print(f"❌ Erreur Mistral sur {doc['type']} : {resp.text}")
@@ -88,6 +100,6 @@ for i, doc in enumerate(docs):
     except Exception as e:
         print(f"❌ Erreur connexion Qdrant: {e}")
 
-    time.sleep(0.5)
+    time.sleep(1.5)
 
 print("🎉 Pipeline terminé avec succès !")
