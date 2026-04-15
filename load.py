@@ -4,7 +4,7 @@ import os
 from retry import retry
 
 # 🔐 clé depuis variable d'environnement (MISTRAL_KEY ou MISTRAL_API_KEY)
-MISTRAL_KEY = os.getenv("MISTRAL_KEY") or os.getenv("MISTRAL_API_KEY")
+MISTRAL_KEY = os.bgetenv("MISTRAL_KEY") or os.getenv("MISTRAL_API_KEY")
 
 # ✅ IMPORTANT : accessible depuis Jenkins Docker (configurable via variable d'environnement)
 QDRANT_URL = os.getenv("QDRANT_URL", "http://host.docker.internal:6333")
