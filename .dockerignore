@@ -1,0 +1,11 @@
+# Ignorer les dossiers locaux pour garder l'image légère
+venv/
+.venv/
+__pycache__/
+*.pdf
+.git/
+.gitignore
+Jenkinsfile
+*.zip
+*.txt
+!requirements.txt
