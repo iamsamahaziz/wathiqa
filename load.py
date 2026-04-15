@@ -41,7 +41,35 @@ def load_real_documents():
 docs = load_real_documents()
 print(f"📚 {len(docs)} documents chargés depuis le dossier {DOCS_DIR}")
 
-# 2. Boucle de traitement et d'indexation
+# 2. S'assurer que la collection existe dans Qdrant
+def ensure_collection():
+    print(f"📡 Vérification de la collection 'AdminBot' sur {QDRANT_URL}...")
+    try:
+        # On vérifie si elle existe
+        check_resp = requests.get(f"{QDRANT_URL}/collections/AdminBot")
+        if check_resp.status_code == 404:
+            print("📦 Collection 'AdminBot' manquante. Création en cours...")
+            create_resp = requests.put(
+                f"{QDRANT_URL}/collections/AdminBot",
+                json={
+                    "vectors": {
+                        "size": 1024,  # Taille pour mistral-embed
+                        "distance": "Cosine"
+                    }
+                }
+            )
+            if create_resp.status_code in [200, 201]:
+                print("✅ Collection 'AdminBot' créée avec succès !")
+            else:
+                print(f"❌ Erreur création collection: {create_resp.text}")
+        else:
+            print("✅ Collection 'AdminBot' prête.")
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la vérification Qdrant: {e}")
+
+ensure_collection()
+
+# 3. Boucle de traitement et d'indexation
 for i, doc in enumerate(docs):
 
     print(f"📄 Traitement ({i+1}/{len(docs)}) : {doc['type']}...")
