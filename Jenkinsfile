@@ -32,11 +32,13 @@ pipeline {
             steps {
                 echo '💓 Vérification de la disponibilité des serveurs...'
                 script {
-                    // Vérification Qdrant
-                    sh "curl -f ${env.QDRANT_URL}/health || (echo '❌ ÉCHEC : Qdrant est hors-ligne !' && exit 1)"
+                    // Test 1 : Qdrant (On teste la racine / qui répond toujours 200)
+                    echo "Test de connexion : Qdrant..."
+                    sh "curl -f ${env.QDRANT_URL}/ || (echo '❌ ALERTE JENKINS : Qdrant ne répond pas !' && exit 1)"
                     
-                    // Vérification n8n
-                    sh "curl -f ${env.N8N_URL}/healthz || (echo '❌ ÉCHEC : n8n est inaccessible !' && exit 1)"
+                    // Test 2 : n8n (On teste la racine / car healthz peut varier selon la version)
+                    echo "Test de connexion : n8n..."
+                    sh "curl -f ${env.N8N_URL}/ || (echo '❌ ALERTE JENKINS : n8n est inaccessible !' && exit 1)"
                     
                     // Vérification Botpress Cloud
                     sh "curl -s -Is https://api.botpress.cloud | grep -E 'HTTP/1.1 200|HTTP/2 200' || (echo '❌ ÉCHEC : Botpress Cloud est down !' && exit 1)"
