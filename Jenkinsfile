@@ -40,8 +40,9 @@ pipeline {
                     echo "Test de connexion : n8n..."
                     sh "curl -f ${env.N8N_URL}/ || (echo '❌ ALERTE JENKINS : n8n est inaccessible !' && exit 1)"
                     
-                    // Vérification Botpress Cloud
-                    sh "curl -s -Is https://api.botpress.cloud | grep -E 'HTTP/1.1 200|HTTP/2 200' || (echo '❌ ÉCHEC : Botpress Cloud est down !' && exit 1)"
+                    // Test 3 : Botpress Cloud (On accepte 200 ou les redirections 301/302)
+                    echo "Checking Botpress Cloud..."
+                    sh "curl -s -I https://api.botpress.cloud | grep -E 'HTTP/.* (200|301|302)' || (echo '❌ ALERTE JENKINS : Botpress Cloud inaccessible !' && exit 1)"
                 }
                 echo '✅ Tous les services sont opérationnels.'
             }
