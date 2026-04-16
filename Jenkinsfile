@@ -5,6 +5,7 @@ pipeline {
         // IPs cibles pour les tests de santé (Health Checks)
         QDRANT_URL = 'http://172.17.0.1:6333'
         N8N_URL     = 'http://172.17.0.1:5678'
+        BOTPRESS_URL = 'https://api.botpress.cloud'
     }
 
     stages {
@@ -42,7 +43,7 @@ pipeline {
                     
                     // Test 3 : Botpress Cloud (Acceptation des codes 200, 301, 302, 401, 404 comme preuve de vie)
                     echo "Checking Botpress Cloud..."
-                    sh "curl -s -I https://api.botpress.cloud | grep -E 'HTTP/.* (200|301|302|401|404)' || (echo '❌ ALERTE JENKINS : Botpress Cloud inaccessible !' && exit 1)"
+                    sh "curl -s -I ${env.BOTPRESS_URL} | grep -E 'HTTP/.* (200|301|302|401|404)' || (echo '❌ ALERTE JENKINS : Botpress Cloud inaccessible !' && exit 1)"
                 }
                 echo '✅ Tous les services sont opérationnels.'
             }
