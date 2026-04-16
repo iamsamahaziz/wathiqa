@@ -48,9 +48,21 @@ pipeline {
                                 sh "curl -f ${env.QDRANT_URL}/ || (echo '❌ ÉCHEC FATAL : Qdrant irrécupérable !' && exit 1)"
                             }
 
-                            // Test 2 : n8n
-                            echo "Test de connexion : n8n..."
-                            sh "curl -f ${env.N8N_URL}/ || (echo '❌ ALERTE JENKINS : n8n est inaccessible !' && exit 1)"
+                            // Test 2 : n8n avec Self-Healing (Auto-Réparation)
+                            echo "Test de connexion : n8n (Self-Healing activé)..."
+                            try {
+                                sh "curl -f ${env.N8N_URL}/"
+                                echo '✅ n8n répond parfaitement !'
+                            } catch (Exception e) {
+                                echo '⚠️ N8N EN PANNE ! Tentative d\'auto-réparation en cours...'
+                                // Simulation d'une tentative de redémarrage (Proof of Concept)
+                                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                                    sh 'docker restart desktop-n8n-1 || echo "⚠️ (PoC) Action nécessitant les droits Docker root."'
+                                }
+                                echo 'Attente de 10 secondes pour le redémarrage...'
+                                sleep time: 10, unit: 'SECONDS'
+                                sh "curl -f ${env.N8N_URL}/ || (echo '❌ ÉCHEC FATAL : n8n irrécupérable !' && exit 1)"
+                            }
 
                             // Test 3 : Botpress Cloud avec Résilience (Retry & Timeout)
                             echo "Checking Botpress Cloud (Avec Mécanisme Retry)..."
