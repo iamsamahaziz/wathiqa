@@ -108,11 +108,9 @@ pipeline {
         }
         success {
             echo '🎉 WATHIQA PIPELINE TERMINE AVEC SUCCES !'
-            echo '🔔 [NOTIFICATION VIRTUELLE] 💬 Slack Channel #devops : "✅ Déploiement réussi ! Tous les documents ont été indexés dans Qdrant !"'
         }
         failure {
-            echo '❌ ÉCHEC DU PIPELINE !'
-            echo '🔔 [NOTIFICATION VIRTUELLE] 📩 Email à l\'administration : "🚨 Alerte : Le pipeline MLOps Wathiqa a échoué. Intervention humaine requise."'
+            echo '❌ ÉCHEC DU PIPELINE : Veuillez consulter les logs pour identifier l\'étape en erreur.'
         }
     }
 }
