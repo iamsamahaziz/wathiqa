@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // Paramètres réseau abstraits (Clean Code)
-        QDRANT_URL   = 'http://localhost:6333'
-        N8N_URL      = 'http://localhost:5678'
+        // Retour aux IPs du pont réseau Docker pour permettre à Jenkins (Conteneur) de voir le réseau hôte
+        QDRANT_URL   = 'http://172.17.0.1:6333'
+        N8N_URL      = 'http://172.17.0.1:5678'
         BOTPRESS_URL = 'https://botpress.com'
     }
 
@@ -97,9 +97,6 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()
-        }
         success {
             echo '🎉 WATHIQA PIPELINE TERMINE AVEC SUCCES !'
         }
