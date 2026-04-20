@@ -11,179 +11,100 @@ pipeline {
         QDRANT_URL   = 'http://172.17.0.1:6333'
         N8N_URL      = 'http://172.17.0.1:5678'
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
-        VENV_DIR     = "${WORKSPACE}/venv"
         PYTHON       = "${WORKSPACE}/venv/bin/python"
         PIP          = "${WORKSPACE}/venv/bin/pip"
     }
 
     stages {
 
-        // ─────────────────────────────────────────────
-        // STAGE 1 — Récupération du code
-        // ─────────────────────────────────────────────
+        // 1. Télécharge le code depuis GitHub
         stage('1. Récupération du Code') {
             steps {
-                echo '🌐 Téléchargement du projet depuis GitHub...'
                 checkout scm
-                echo "📌 Commit : ${env.GIT_COMMIT?.take(8) ?: 'inconnu'} — Branche : ${env.GIT_BRANCH ?: 'inconnue'}"
+                echo "Commit : ${env.GIT_COMMIT?.take(8)} — Branche : ${env.GIT_BRANCH}"
             }
         }
 
-        // ─────────────────────────────────────────────
-        // STAGE 2 — Vérification des fichiers + syntaxe
-        // ─────────────────────────────────────────────
-        stage('2. Vérification de Syntaxe') {
+        // 2. Vérifie que les fichiers nécessaires existent et que le code Python est valide
+        stage('2. Vérification') {
             steps {
-                echo '🔍 Vérification des fichiers requis...'
+
+                // Vérifie les fichiers requis
                 sh '''
                 MISSING=0
-
-                check_file() {
-                    if [ -e "$1" ]; then
-                        echo "✅ $1 trouvé"
+                for FILE in load.py requirements.txt Wathiqa.json Wathiqa.bpz documents; do
+                    if [ -e "$FILE" ]; then
+                        echo "OK : $FILE"
                     else
-                        echo "❌ $1 MANQUANT"
+                        echo "MANQUANT : $FILE"
                         MISSING=1
                     fi
-                }
-
-                check_file load.py
-                check_file requirements.txt
-                check_file Wathiqa.json
-                check_file Wathiqa.bpz
-                check_file documents
-
-                if [ "$MISSING" -eq 1 ]; then
-                    echo "❌ Fichiers critiques manquants — arrêt du pipeline."
-                    exit 1
-                fi
-
-                echo "✅ Tous les fichiers requis sont présents."
+                done
+                [ "$MISSING" -eq 1 ] && exit 1 || echo "Tous les fichiers sont présents."
                 '''
 
-                echo '🐍 Vérification de la syntaxe Python...'
-                sh '''
-                python3 -c "
-import py_compile, sys
-try:
-    py_compile.compile('load.py', doraise=True)
-    print('✅ load.py — syntaxe OK')
-except py_compile.PyCompileError as e:
-    print(f'❌ Erreur de syntaxe dans load.py : {e}')
-    sys.exit(1)
-"
-                '''
+                // Vérifie la syntaxe de load.py
+                sh 'python3 -m py_compile load.py && echo "Syntaxe Python OK"'
 
-                echo '📦 Vérification du requirements.txt...'
-                sh '''
-                python3 -c "
-import sys
-with open('requirements.txt') as f:
-    lines = [l.strip() for l in f if l.strip() and not l.startswith('#')]
-if not lines:
-    print('❌ requirements.txt est vide !')
-    sys.exit(1)
-print(f'✅ requirements.txt OK — {len(lines)} dépendances déclarées')
-"
-                '''
+                // Vérifie que requirements.txt n'est pas vide
+                sh 'python3 -c "lines=open(\"requirements.txt\").readlines(); exit(0 if lines else 1)" && echo "requirements.txt OK"'
             }
         }
 
-        // ─────────────────────────────────────────────
-        // STAGE 3 — Self-Healing & Validation infra
-        // ─────────────────────────────────────────────
-        stage('3. Self-Healing & Validation') {
+        // 3. Vérifie que Docker, Qdrant, n8n et Botpress sont accessibles
+        //    Si Qdrant ou n8n sont hors ligne, on tente un redémarrage automatique
+        stage('3. Vérification des Services') {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 script {
 
-                    // Helper : vérifie un service, tente un restart si KO, échoue si toujours KO
-                    def checkService = { String name, String checkCmd, String restartCmd, int waitSec ->
-                        echo "🔍 Vérification de ${name}..."
-                        def ok = (sh(script: checkCmd, returnStatus: true) == 0)
-                        if (!ok && restartCmd) {
-                            echo "⚠️ ${name} KO — tentative de redémarrage..."
-                            sh "${restartCmd} || true"
-                            sleep waitSec
-                            ok = (sh(script: checkCmd, returnStatus: true) == 0)
-                        }
-                        if (!ok) {
-                            error "❌ ${name} est HORS LIGNE après tentative de réparation. Arrêt du pipeline."
-                        }
-                        echo "✅ ${name} OK"
+                    // Docker
+                    if (sh(script: 'docker ps', returnStatus: true) != 0)
+                        error "Docker inaccessible — arrêt du pipeline."
+
+                    // Qdrant
+                    if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0) {
+                        sh 'docker restart desktop-qdrant-1 || true'
+                        sleep 10
+                        if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0)
+                            error "Qdrant hors ligne — arrêt du pipeline."
                     }
 
-                    // 3.1 — Docker (pas de restart possible, échec immédiat)
-                    checkService(
-                        'Docker',
-                        'docker ps',
-                        null,
-                        0
-                    )
+                    // n8n
+                    if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0) {
+                        sh 'docker restart desktop-n8n-1 || true'
+                        sleep 10
+                        if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0)
+                            error "n8n hors ligne — arrêt du pipeline."
+                    }
 
-                    // 3.2 — Qdrant
-                    checkService(
-                        'Qdrant',
-                        "curl -sf --max-time 10 ${QDRANT_URL}",
-                        'timeout 20 docker restart desktop-qdrant-1',
-                        10
-                    )
+                    // Botpress
+                    if (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) != 0)
+                        error "Botpress inaccessible — arrêt du pipeline."
 
-                    // 3.3 — n8n
-                    checkService(
-                        'n8n',
-                        "curl -sf --max-time 10 ${N8N_URL}",
-                        'timeout 20 docker restart desktop-n8n-1',
-                        10
-                    )
-
-                    // 3.4 — Botpress Cloud (service externe, pas de restart)
-                    checkService(
-                        'Botpress',
-                        "curl -sf --max-time 10 ${BOTPRESS_URL}",
-                        null,
-                        0
-                    )
-
-                    echo '══════════════════════════════════'
-                    echo '📊 RÉSUMÉ SANTÉ : Docker ✅ | Qdrant ✅ | n8n ✅ | Botpress ✅'
-                    echo '══════════════════════════════════'
+                    echo "Tous les services sont OK."
                 }
             }
         }
 
-        // ─────────────────────────────────────────────
-        // STAGE 4 — Build & Install (avec cache venv)
-        // ─────────────────────────────────────────────
-        stage('4. Build & Install') {
+        // 4. Crée l'environnement Python et installe les dépendances
+        stage('4. Installation') {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
-                echo '📦 Création du venv et installation des dépendances...'
                 sh '''
-                # Crée le venv uniquement s'il n'existe pas déjà
-                if [ ! -f "$VENV_DIR/bin/python" ]; then
-                    echo "🆕 Création du venv..."
-                    python3 -m venv "$VENV_DIR"
-                else
-                    echo "♻️  Venv existant réutilisé"
-                fi
+                [ ! -f "$PYTHON" ] && python3 -m venv venv
 
                 "$PIP" install --upgrade pip --quiet
                 "$PIP" install -r requirements.txt --quiet
+                "$PIP" check && echo "Aucun conflit de dépendances."
                 '''
-
-                echo '🔎 Vérification des conflits de dépendances...'
-                sh '"$PIP" check && echo "✅ Aucun conflit de dépendances" || { echo "❌ Conflits détectés"; exit 1; }'
             }
         }
 
-        // ─────────────────────────────────────────────
-        // STAGE 5 — Pipeline IA
-        // ─────────────────────────────────────────────
-        stage('5. Pipeline IA') {
+        // 5. Lance l'indexation des documents dans Qdrant
+        stage('5. Indexation IA') {
             options { timeout(time: 10, unit: 'MINUTES') }
             steps {
-                echo '🚀 Indexation des documents dans Qdrant...'
                 withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
                     sh '''
                     export MISTRAL_KEY=$MISTRAL_KEY
@@ -192,55 +113,28 @@ print(f'✅ requirements.txt OK — {len(lines)} dépendances déclarées')
                     '''
                 }
 
-                echo '🔍 Vérification post-indexation dans Qdrant...'
+                // Vérifie que l'indexation a bien créé des collections dans Qdrant
                 sh '''
-                STATUS=$(curl -sf --max-time 10 "${QDRANT_URL}/collections" | python3 -c "
+                COLLECTIONS=$(curl -sf "${QDRANT_URL}/collections" | python3 -c "
 import sys, json
-try:
-    data = json.load(sys.stdin)
-    collections = data.get('result', {}).get('collections', [])
-    if collections:
-        print(f'✅ {len(collections)} collection(s) trouvée(s) dans Qdrant : {[c[\"name\"] for c in collections]}')
-    else:
-        print('❌ Aucune collection trouvée dans Qdrant après indexation')
-        sys.exit(1)
-except Exception as e:
-    print(f'❌ Erreur lors de la vérification Qdrant : {e}')
-    sys.exit(1)
-" 2>&1)
-                echo "$STATUS"
-                echo "$STATUS" | grep -q "❌" && exit 1 || true
+data = json.load(sys.stdin)
+cols = data.get('result', {}).get('collections', [])
+print(len(cols))
+")
+                [ "$COLLECTIONS" -gt 0 ] && echo "$COLLECTIONS collection(s) indexée(s)." || { echo "Aucune collection trouvée."; exit 1; }
                 '''
             }
         }
     }
 
-    // ─────────────────────────────────────────────
-    // POST — Notifications + nettoyage
-    // ─────────────────────────────────────────────
     post {
-        success {
-            echo '🎉 PIPELINE TERMINÉ AVEC SUCCÈS !'
-            echo "📌 Commit déployé : ${env.GIT_COMMIT?.take(8) ?: 'inconnu'}"
-        }
-        failure {
-            echo '❌ ÉCHEC DU PIPELINE.'
-            echo '💡 Consultez les logs ci-dessus pour identifier l\'étape en erreur.'
-            // Décommenter pour activer les notifications email :
-            // mail to: 'ton-email@example.com',
-            //      subject: "❌ Pipeline échoué — ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            //      body: "Voir les logs : ${env.BUILD_URL}"
-        }
-        aborted {
-            echo '⏹️ PIPELINE ANNULÉ.'
-        }
+        success { echo "Pipeline terminé avec succès — commit ${env.GIT_COMMIT?.take(8)}" }
+        failure { echo "Pipeline en échec — consultez les logs." }
+        aborted { echo "Pipeline annulé." }
         cleanup {
-            echo '🧹 Nettoyage du workspace...'
-            cleanWs(
-                deleteDirs: true,
-                notFailBuild: true,
-                patterns: [[pattern: 'venv/**', type: 'EXCLUDE']]  // conserve le venv pour le cache
-            )
+            // Nettoie le workspace mais garde le venv pour accélérer le prochain build
+            cleanWs(deleteDirs: true, notFailBuild: true,
+                    patterns: [[pattern: 'venv/**', type: 'EXCLUDE']])
         }
     }
 }
