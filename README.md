@@ -2,19 +2,12 @@
 
 > **"L'accès à l'information administrative est un droit, Wathiqa en fait une conversation."**
 
-Wathiqa est un écosystème conçu pour centraliser et simplifier **57 démarches administratives marocaines**. Ce projet n'est pas une simple interface de chat, mais une architecture complexe de **Retrieval-Augmented Generation (RAG)** bilingue, orchestrée localement pour garantir souveraineté et flexibilité.
+Wathiqa est un écosystème conçu pour centraliser et simplifier **57 démarches administratives marocaines**. Ce projet utilise une architecture de **Retrieval-Augmented Generation (RAG)** bilingue, orchestrée localement.
 
 ---
 
-## 🏛️ 1. La Mission : Résoudre la Complexité Administrative
-Au Maroc, trouver des informations fiables sur une CNIE, un passeport ou un permis de construire nécessite souvent de naviguer sur de multiples sites web ou de se déplacer. **Wathiqa** résout ce problème en offrant :
-- **Centralisation** : 10 domaines administratifs couverts.
-- **Accessibilité** : Réponses en Français et résumé en **Darija** marocaine.
-- **Précision** : Informations basées sur une base de données vectorielle vérifiée.
+## 🏗️ 1. Architecture du Système
 
----
-
-## 🏗️ 2. Architecture Technique : Les 5 Piliers
 Le projet repose sur 5 briques technologiques qui communiquent en temps réel :
 
 ```mermaid
@@ -29,106 +22,101 @@ graph TD
     M2 -- Réponse Bilingue --> BP
 ```
 
-### 2.1. Botpress Cloud (L'Interface conversationnelle)
-Le "Front-end" du projet. Il gère le flux de conversation (menus, catégories) et l'IA native qui redirige l'utilisateur.
-- **Rôle** : Capturer la question et l'envoyer au backend via un webhook.
-- **Scripting** : Utilise des nœuds "Execute Code" en JavaScript pour communiquer avec n8n.
+---
 
-### 2.2. n8n (L'Orchestrateur Vital)
-C'est le "Spine" (colonne vertébrale) du système. Au lieu de coder un serveur complexe, nous avons choisi n8n pour sa visibilité et sa flexibilité.
-- **Workflow** : Un pipeline de 8 nœuds gérant l'extraction de la question, la vectorisation, la recherche sémantique et la génération de réponse.
+## 🚀 2. Guide d'Installation Ultra-Détaillé (Étape par Étape)
 
-### 2.3. ngrok (Le Pont de Communication)
-Indispensable pour lier le Cloud au Local.
-- **Pourquoi ?** : Botpress Cloud ne peut pas accéder à une adresse `localhost`. ngrok crée un tunnel public HTTPS sécurisé vers votre port local `5678`.
+Ce guide est conçu pour vous permettre de configurer l'écosystème complet même si vous n'êtes pas un expert.
 
-### 2.4. Qdrant (La Mémoire Sémantique)
-Base de données vectorielle ultra-rapide.
-- **Concept** : Elle stocke les documents sous forme de vecteurs mathématiques, permettant une recherche par *sens* plutôt que par mots-clés simples.
-
-### 2.5. Mistral AI (Le Cortex Intelligent)
-- **mistral-embed** : Transforme les textes en vecteurs.
-- **mistral-small-latest** : Génère la réponse finale en respectant les consignes bilingues.
+### 📋 Phase 0 : Préparation des Comptes
+Avant d'ouvrir votre terminal, créez les comptes gratuits suivants :
+1. **Mistral AI** : Créez un compte sur [console.mistral.ai](https://console.mistral.ai/) et générez une **API KEY**.
+2. **ngrok** : Créez un compte sur [ngrok.com](https://ngrok.com/) pour obtenir votre **Authtoken**.
+3. **Botpress** : Créez un compte sur [app.botpress.cloud](https://app.botpress.cloud/).
 
 ---
 
-## 🚀 3. Guide d'Installation Masterclass (Pas à Pas)
-
-### Étape 1 : Infrastructure Docker (Qdrant)
-1. Téléchargez et lancez [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-2. Lancez le serveur Qdrant dans un terminal :
+### Etape 1 : Lancement de la Base de Données (Qdrant)
+Qdrant est le "cerveau" qui stocke les 57 documents administratifs sous forme de vecteurs.
+1. Installez [Docker Desktop](https://www.docker.com/products/docker-desktop/) et lancez-le.
+2. Ouvrez un terminal (CMD ou PowerShell sur Windows) et tapez :
    ```bash
    docker run -d -p 6333:6333 -v qdrant_storage:/qdrant/storage qdrant/qdrant
    ```
-3. **Vérification** : Ouvrez `http://localhost:6333/dashboard` dans votre navigateur. Vous devez voir l'interface Qdrant.
+3. **✅ Vérification** : Ouvrez votre navigateur sur `http://localhost:6333/dashboard`. Si vous voyez l'interface bleue de Qdrant, c'est gagné !
 
-### Étape 2 : Préparation du Pipeline Python (RAG)
-1. **Environnement** : Ouvrez un terminal dans le dossier du projet.
+---
+
+### Etape 2 : Indexation des Documents (Python)
+Nous allons transformer les fichiers texte bruts en "intelligence" dans Qdrant.
+1. **Ouvrez votre terminal** dans le dossier du projet `Projet_IA`.
+2. **Créez l'environnement virtuel** :
+   - *Windows* : `python -m venv venv` puis `.\venv\Scripts\activate`
+   - *Mac/Linux* : `python3 -m venv venv` puis `source venv/bin/activate`
+3. **Installez les bibliothèques** :
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
    ```
-2.  **Dépendances** :
-    ```bash
-    pip install -r requirements.txt
-    ```
-3.  **Clé API** : Récupérez votre clé sur [Mistral Console](https://console.mistral.ai).
-    ```bash
-    # Windows
-    set MISTRAL_KEY=votre_cle_ici
-    # Mac/Linux
-    export MISTRAL_KEY=votre_cle_ici
-    ```
-4.  **Indexation** : Lancez le script pour injecter les 57 documents dans Qdrant.
-    ```bash
-    python load.py
-    ```
+4. **Configurez votre clé Mistral** :
+   - *Windows* : `set MISTRAL_KEY=votre_cle_ici`
+   - *Mac/Linux* : `export MISTRAL_KEY=votre_cle_ici`
+5. **Lancez l'indexation** :
+   ```bash
+   python load.py
+   ```
+   **✅ Vérification** : Le script doit afficher "100% terminé" ou lister les documents un par un. Retournez sur le dashboard Qdrant (`http://localhost:6333/dashboard`) : une collection `AdminBot` doit être apparue !
 
-### Étape 3 : Tunneling avec ngrok
-1. Créez un compte sur [ngrok.com](https://ngrok.com/).
-2. Installez ngrok et lancez le tunnel :
+---
+
+### Etape 3 : Création du Tunnel Web (ngrok)
+Botpress Cloud doit "appeler" votre ordinateur. ngrok crée ce pont.
+1. Dans un **nouveau** terminal, tapez :
    ```bash
    ngrok http 5678
    ```
-3. **Important** : Copiez l'URL `https://xxxx.ngrok-free.app` qui s'affiche. C'est l'adresse publique de votre projet.
+2. **✅ Vérification** : Une URL s'affiche (ex: `https://abcd-123.ngrok-free.app`). **Copiez-la précieusement**, vous en aurez besoin pour l'étape 5.
 
-### Étape 4 : Orchestration n8n
-1. Lancez n8n : `npx n8n` (ou via Docker).
-2. Ouvrez l'interface (`http://localhost:5678`).
-3. Cliquez sur **Workflows** > **Import from File...** et choisissez `Wathiqa.json`.
-4. Dans le nœud **Mistral AI**, collez votre clé API.
-5. Dans le nœud **Qdrant**, vérifiez que l'URL est bien `http://localhost:6333`.
-6. Cliquez sur **Execute Workflow** (le cercle doit devenir vert/actif).
+---
 
-### Étape 5 : Front-end Botpress Cloud
-1. Créez un bot sur [Botpress Cloud](https://app.botpress.cloud).
-2. Dans le **Studio**, cliquez sur l'icône en haut à gauche (Logo Botpress) > **Import/Export** > **Import**.
-3. Choisissez le fichier `Wathiqa.bpz`.
-4. Trouvez le nœud nommé "Execution de code" ou "R├®ponse" et remplacez l'URL cible par votre URL ngrok + `/webhook/wathiqa`.
+### Etape 4 : Configuration de l'Orchestrateur (n8n)
+n8n fait le lien entre Mistral, Qdrant et Botpress.
+1. Lancez n8n dans un terminal : `npx n8n`.
+2. Allez sur `http://localhost:5678`.
+3. **Importation** : Cliquez sur **Workflows** (à gauche) > **Add Workflow** > **Import from File...** et sélectionnez `Wathiqa.json`.
+4. **Configuration des Nœuds** :
+   - Double-cliquez sur le nœud **Mistral AI** et collez votre clé API.
+   - Double-cliquez sur le nœud **Qdrant** et assurez-vous que l'URL est `http://localhost:6333`.
+5. **✅ Activation** : Cliquez sur le bouton **Execute Workflow** en haut. Il doit être en état d'attente ("Waiting for Webhook").
+
+---
+
+### Etape 5 : Front-end (Botpress Cloud)
+C'est ici que l'utilisateur discutera avec Wathiqa.
+1. Sur [Botpress Cloud](https://app.botpress.cloud/), créez un nouveau Bot.
+2. Cliquez sur **Edit with Studio**.
+3. **Importation** : Cliquez sur le logo Botpress (haut à gauche) > **Import/Export** > **Import** et sélectionnez `Wathiqa.bpz`.
+4. **Lien Webhook** : Cherchez le nœud qui contient du code ("Execute Code") et remplacez l'URL cible par `VOTRE_URL_NGROK/webhook/wathiqa`.
 5. Cliquez sur **Publish** en haut à droite.
 
 ---
 
-## 🇲🇦 4. Fonctionnalités & Logique Bilingue
-Wathiqa utilise un **System Prompt** avancé dans Mistral AI pour garantir une accessibilité maximale :
-1. **Le Français** : Pour la précision administrative et formelle.
-2. **Le Darija** : Pour un résumé simplifié et chaleureux, facilitant la compréhension immédiate.
+## 🇲🇦 3. Fonctionnalités & Logique Bilingue
+Wathiqa ne se contente pas de répondre. Il adapte son langage :
+1. **Français** : Pour la rigueur des procédures (documents, prix, lieux).
+2. **Darija** : Pour un "Résumé 🇲🇦" sous chaque réponse, permettant à tout citoyen de comprendre l'essentiel en un clin d'œil.
 
 ---
 
-## ⚠️ 5. Difficultés Rencontrées & Solutions
-- **ngrok Warning** : Botpress bloquait parfois sur la page d'avertissement de ngrok.
-  - *Solution* : Ajout du header `ngrok-skip-browser-warning: true` dans la requête axios.
-- **Timeouts** : L'API Mistral peut être lente.
-  - *Solution* : Augmentation du timeout à 30 secondes dans n8n et Botpress.
-- **Hallucinations** : Le modèle inventait des prix pour les timbres.
-  - *Solution* : "Finetuning" du prompt pour forcer Mistral à dire "Information non disponible" si elle n'est pas dans le document.
+## ⚠️ 4. Dépannage (En cas de problème)
+- **Erreur 404 dans Botpress** : Votre URL ngrok a expiré ou changé. Mettez-la à jour dans Botpress.
+- **Qdrant vide** : Relancez le script `load.py` en vérifiant que votre clé Mistral est bien configurée.
+- **n8n ne reçoit rien** : Vérifiez que vous avez bien ajouté `/webhook/wathiqa` à la fin de votre URL ngrok dans Botpress.
 
 ---
 
 ## 👥 Équipe Projet
-- **Samah AZIZ** (Architecture Système & Logique RAG)
+- **Samah AZIZ** (Architecture & Logique RAG)
 - **Keltoum AGAZZARA** (Stratégie Documentaire & UI Design)
 
-**Licence Ingénierie Informatique (LST 2I) — 2026**
-**FST Mohammedia - Université Hassan II**
+**Licence Ingénierie Informatique (LST 2I) — FST Mohammedia**
+**Université Hassan II de Casablanca — 2026**
