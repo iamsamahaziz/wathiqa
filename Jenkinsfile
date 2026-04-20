@@ -25,64 +25,93 @@ pipeline {
             }
         }
 
-        // 2. Vérifie que les fichiers nécessaires existent et que le code Python est valide
+        // 2. Vérifications en parallèle — les 3 checks tournent en même temps
         stage('2. Vérification') {
-            steps {
+            parallel {
 
-                // Vérifie les fichiers requis
-                sh '''
-                MISSING=0
-                for FILE in load.py requirements.txt Wathiqa.json Wathiqa.bpz documents; do
-                    if [ -e "$FILE" ]; then
-                        echo "OK : $FILE"
-                    else
-                        echo "MANQUANT : $FILE"
-                        MISSING=1
-                    fi
-                done
-                [ "$MISSING" -eq 1 ] && exit 1 || echo "Tous les fichiers sont présents."
-                '''
+                stage('Fichiers') {
+                    steps {
+                        sh '''
+                        MISSING=0
+                        for FILE in load.py requirements.txt Wathiqa.json Wathiqa.bpz documents; do
+                            if [ -e "$FILE" ]; then
+                                echo "OK : $FILE"
+                            else
+                                echo "MANQUANT : $FILE"
+                                MISSING=1
+                            fi
+                        done
+                        [ "$MISSING" -eq 1 ] && exit 1 || echo "Tous les fichiers sont présents."
+                        '''
+                    }
+                }
 
-                // Vérifie la syntaxe de load.py
-                sh 'python3 -m py_compile load.py && echo "Syntaxe Python OK"'
+                stage('Syntaxe Python') {
+                    steps {
+                        sh 'python3 -m py_compile load.py && echo "Syntaxe Python OK"'
+                    }
+                }
 
-                // Vérifie que requirements.txt n'est pas vide
-                sh 'python3 -c "lines=open(\"requirements.txt\").readlines(); exit(0 if lines else 1)" && echo "requirements.txt OK"'
+                stage('Requirements') {
+                    steps {
+                        sh 'python3 -c "lines=open(\"requirements.txt\").readlines(); exit(0 if lines else 1)" && echo "requirements.txt OK"'
+                    }
+                }
             }
         }
 
-        // 3. Vérifie que Docker, Qdrant, n8n et Botpress sont accessibles
-        //    Si Qdrant ou n8n sont hors ligne, on tente un redémarrage automatique
+        // 3. Vérification des services en parallèle — les 4 checks tournent en même temps
+        //    Qdrant et n8n ont un redémarrage automatique si hors ligne
         stage('3. Vérification des Services') {
             options { timeout(time: 5, unit: 'MINUTES') }
-            steps {
-                script {
+            parallel {
 
-                    // Docker
-                    if (sh(script: 'docker ps', returnStatus: true) != 0)
-                        error "Docker inaccessible — arrêt du pipeline."
-
-                    // Qdrant
-                    if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0) {
-                        sh 'docker restart desktop-qdrant-1 || true'
-                        sleep 10
-                        if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0)
-                            error "Qdrant hors ligne — arrêt du pipeline."
+                stage('Docker') {
+                    steps {
+                        script {
+                            if (sh(script: 'docker ps', returnStatus: true) != 0)
+                                error "Docker inaccessible — arrêt du pipeline."
+                            echo "Docker OK"
+                        }
                     }
+                }
 
-                    // n8n
-                    if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0) {
-                        sh 'docker restart desktop-n8n-1 || true'
-                        sleep 10
-                        if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0)
-                            error "n8n hors ligne — arrêt du pipeline."
+                stage('Qdrant') {
+                    steps {
+                        script {
+                            if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0) {
+                                sh 'docker restart desktop-qdrant-1 || true'
+                                sleep 10
+                                if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0)
+                                    error "Qdrant hors ligne — arrêt du pipeline."
+                            }
+                            echo "Qdrant OK"
+                        }
                     }
+                }
 
-                    // Botpress
-                    if (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) != 0)
-                        error "Botpress inaccessible — arrêt du pipeline."
+                stage('n8n') {
+                    steps {
+                        script {
+                            if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0) {
+                                sh 'docker restart desktop-n8n-1 || true'
+                                sleep 10
+                                if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0)
+                                    error "n8n hors ligne — arrêt du pipeline."
+                            }
+                            echo "n8n OK"
+                        }
+                    }
+                }
 
-                    echo "Tous les services sont OK."
+                stage('Botpress') {
+                    steps {
+                        script {
+                            if (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) != 0)
+                                error "Botpress inaccessible — arrêt du pipeline."
+                            echo "Botpress OK"
+                        }
+                    }
                 }
             }
         }
@@ -132,7 +161,6 @@ print(len(cols))
         failure { echo "Pipeline en échec — consultez les logs." }
         aborted { echo "Pipeline annulé." }
         cleanup {
-            // Nettoie le workspace mais garde le venv pour accélérer le prochain build
             cleanWs(deleteDirs: true, notFailBuild: true,
                     patterns: [[pattern: 'venv/**', type: 'EXCLUDE']])
         }
