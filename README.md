@@ -1,112 +1,119 @@
-# 🇲🇦 Wathiqa (وثيقة) — Guide Complet & Masterclass Jenkins
+# 🇲🇦 Wathiqa (وثيقة) — Le Guide Technique Ultime (Masterclass RAG)
 
-> **L'assistant intelligent pour simplifier 57 démarches administratives marocaines.**
+> **"L'accès à l'information administrative est un droit, Wathiqa en fait une conversation."**
 
-Wathiqa n'est pas qu'un simple chatbot. C'est un pipeline MLOps complet utilisant une architecture RAG (Retrieval-Augmented Generation) bilingue. Ce guide est conçu pour vous permettre de reproduire l'ensemble du projet chez vous, soit manuellement, soit via Jenkins.
-
----
-
-## 🏗️ 1. Architecture du Système
-
-Le projet repose sur 5 piliers :
-1.  **Botpress Cloud** : L'interface utilisateur.
-2.  **ngrok** : Le pont sécurisé entre le Cloud et votre machine locale.
-3.  **n8n** : Le cerveau qui orchestre la recherche et la génération.
-4.  **Qdrant** : La base de données vectorielle ultra-rapide.
-5.  **Mistral AI** : Les modèles `mistral-embed` et `mistral-small` pour comprendre et répondre.
+Wathiqa est un écosystème conçu pour centraliser et simplifier **57 démarches administratives marocaines**. Ce projet n'est pas une simple interface de chat, mais une architecture complexe de **Retrieval-Augmented Generation (RAG)** bilingue, orchestrée localement pour garantir souveraineté et flexibilité.
 
 ---
 
-## 🚀 2. Installation Manuelle (Étape par Étape)
+## 🏛️ 1. La Mission : Résoudre la Complexité Administrative
+Au Maroc, trouver des informations fiables sur une CNIE, un passeport ou un permis de construire nécessite souvent de naviguer sur de multiples sites web ou de se déplacer. **Wathiqa** résout ce problème en offrant :
+- **Centralisation** : 10 domaines administratifs couverts.
+- **Accessibilité** : Réponses en Français et résumé en **Darija** marocaine.
+- **Précision** : Informations basées sur une base de données vectorielle vérifiée.
 
-### 2.1. Prérequis sur votre PC
-- **Python 3.10+** (Indispensable pour les scripts d'indexation).
-- **Docker Desktop** (Pour faire tourner Qdrant en local).
-- **Une clé API Mistral AI** (À obtenir sur [console.mistral.ai](https://console.mistral.ai)).
+---
 
-### 2.2. Lancement de la Base Vectorielle (Qdrant)
-Ouvrez un terminal et tapez :
+## 🏗️ 2. Architecture Technique : Les 5 Piliers
+Le projet repose sur 5 briques technologiques qui communiquent en temps réel :
+
+### 2.1. Botpress Cloud (L'Interface conversationnelle)
+Le "Front-end" du projet. Il gère le flux de conversation (menus, catégories) et l'IA native qui redirige l'utilisateur.
+- **Rôle** : Capturer la question et l'envoyer au backend via un webhook.
+- **Scripting** : Utilise des nœuds "Execute Code" en JavaScript pour communiquer avec n8n.
+
+### 2.2. n8n (L'Orchestrateur Vital)
+C'est le "Cœur" du système. Au lieu de coder un serveur complexe, nous utilisons n8n pour orchestrer le pipeline RAG.
+- **Complexité** : Un workflow de 8 nœuds gérant l'extraction, la vectorisation, la recherche et la génération.
+- **Avantage** : Permet une modification rapide des prompts et une surveillance visuelle des erreurs en temps réel.
+
+### 2.3. ngrok (Le Pont de Communication)
+Une pièce critique du puzzle. Botpress Cloud ne peut pas "voir" votre serveur n8n local.
+- **Pourquoi ngrok ?** : Il crée un tunnel sécurisé (HTTPS) qui expose votre port local `5678` sur le web.
+- **Fonctionnalité** : Sans lui, les messages resteraient bloqués dans le Cloud sans jamais atteindre votre machine.
+
+### 2.4. Qdrant (La Mémoire Sémantique)
+Base de données vectorielle ultra-rapide.
+- **Concept** : Contrairement à une base SQL classique, Qdrant stocke des "vecteurs" (nombres) qui représentent le sens des mots.
+- **Collection** : `AdminBot` (contient les 57 documents indexés).
+
+### 2.5. Mistral AI (L'Intelligence Artificielle)
+Nous utilisons une stratégie à deux modèles :
+- **mistral-embed** : Pour transformer les textes en vecteurs de dimension 1024.
+- **mistral-small-latest** : Pour lire les documents trouvés et rédiger la réponse bilingue finale.
+
+---
+
+## 🚀 3. Installation Manuelle (Étape par Étape)
+
+### Étape 1 : Infrastructure Docker
+Qdrant doit tourner en permanence pour servir les données :
 ```bash
-docker run -p 6333:6333 -p 6334:6334 -v qdrant_storage:/qdrant/storage qdrant/qdrant
+docker run -d -p 6333:6333 -p 6334:6334 -v qdrant_storage:/qdrant/storage qdrant/qdrant
 ```
-*Vérifiez que ça fonctionne en ouvrant `http://localhost:6333/dashboard` dans votre navigateur.*
 
-### 2.3. Indexation des 57 Documents (Python)
-Les documents bruts sont dans le dossier `documents/`.
+### Étape 2 : Environnement Python & Indexation
+Préparez le script qui va lire vos 57 fichiers `.txt` :
 ```bash
-# Dans le dossier Projet_IA
 python -m venv venv
-source venv/bin/activate  # (Sur Windows: venv\Scripts\activate)
-
+source venv/bin/activate  # venv\Scripts\activate sur Windows
 pip install -r requirements.txt
-
-# Configurez votre clé API (IMPORTANT)
-export MISTRAL_KEY="VOTRE_CLE_ICI"  # (Sur Windows: set MISTRAL_KEY=VOTRE_CLE_ICI)
-
-# Lancez l'indexation
-python load.py
+set MISTRAL_KEY=votre_cle_api  # Configurez votre secret
+python load.py  # Lance l'indexation dans Qdrant
 ```
 
-### 2.4. Orchestration avec n8n
-1.  Lancez n8n (soit via Docker, soit via npm).
-2.  Dans n8n, cliquez sur **Import from File** et choisissez `Wathiqa.json`.
-3.  Configurez les nœuds :
-    *   **Mistral Node** : Collez votre clé API.
-    *   **Qdrant Node** : L'URL est `http://localhost:6333` (ou l'IP Docker).
-4.  Cliquez sur le bouton **Execute Workflow** pour qu'il soit à l'écoute.
-
-### 2.5. Tunneling avec ngrok (Critique)
-Pour que Botpress puisse envoyer des messages à votre n8n local :
+### Étape 3 : Tunneling avec ngrok
+Indispensable pour la communication Cloud-Local :
 ```bash
-ngrok http 5678
+ngrok http 5678 --domain=votre-domaine.ngrok-free.app (optionnel)
 ```
-*Copiez l'URL `https://xxxx-xxxx.ngrok-free.app` qui s'affiche.*
+> [!IMPORTANT]
+> Notez bien l'URL générée, elle devra être copiée dans Botpress.
 
-### 2.6. Interface Botpress Cloud
-1.  Créez un bot sur [Botpress Cloud](https://app.botpress.cloud).
-2.  Allez dans **Studio** > **Import/Export** > **Import** et choisissez `Wathiqa.bpz`.
-3.  Dans l'étape "Execution de code", remplacez l'URL cible par votre URL ngrok + `/webhook/wathiqa`.
-4.  Cliquez sur **Publish**.
-
----
-
-## 🚀 3. GUIDE DÉTAILLÉ JENKINS (Masterclass CI/CD)
-
-Jenkins automatise tout : tests de syntaxe, réparation des services et ré-indexation automatique.
-
-### 3.1. Configuration Initiale
-1.  Installez Jenkins (URL par défaut : `http://localhost:8080`).
-2.  **Plugins recommandés** : `Pipeline`, `Git`, `Credentials Binding`, `Docker Pipeline`.
-
-### 3.2. Gestion des Clés Secrètes
-Ne mettez jamais votre clé Mistral dans le code !
-1.  Allez dans **Administrer Jenkins** > **Credentials**.
-2.  Créez un nouveau secret de type **Secret Text**.
-3.  ID : `MISTRAL_KEY`.
-4.  Secret : Votre clé API réelle.
-
-### 3.3. Création du Job de Pipeline
-1.  Cliquez sur **Nouveau Item** > Nom : `Wathiqa-Pipeline` > **Pipeline**.
-2.  Dans la section **Pipeline** :
-    *   Definition : `Pipeline script from SCM`.
-    *   SCM : `Git`.
-    *   Repository URL : `https://github.com/iamsamahaziz/TP_IA.git`.
-    *   Branch : `*/main`.
-    *   Script Path : `Jenkinsfile`.
-3.  Cliquez sur **Sauvegarder**, puis **Lancer le build**.
-
-### 3.4. Le mécanisme de "Self-Healing"
-Mon `Jenkinsfile` contient une logique intelligente :
-- Si Qdrant tombe en panne, Jenkins le détecte via un `curl` et tente un `docker restart desktop-qdrant-1` automatiquement.
-- Si le build prend plus de 15 minutes, il s'arrête proprement grâce au `timeout`.
+### Étape 4 : Configuration n8n
+1. Lancez n8n : `npx n8n`.
+2. Importez `Wathiqa.json`.
+3. Configurez les **Credentials** pour Mistral AI et l'URL de Qdrant (`http://localhost:6333`).
 
 ---
 
-## 🌍 Fonctionnalités Bilingues
-Wathiqa répond toujours en deux temps :
-- **Réponse Standard (Français)** : Précise et formelle.
-- **Réponse Résumée (Daridja)** : Pour une meilleure accessibilité locale.
+## 🇲🇦 4. La Méthode Bilingue : Prompt Engineering
+Le secret de la réponse bilingue réside dans le **System Prompt** injecté dans Mistral via n8n :
+
+```text
+Tu es Wathiqa, assistant expert des démarches administratives marocaines.
+RÈGLE D'OR : Réponds d'abord en Français (précis et formel).
+Ensuite, fournis un résumé en DARIJA marocaine sous le titre "🇲🇦 بالدارجة :".
+Si tu ne trouves pas la réponse dans les documents, précise-le clairement.
+```
 
 ---
-**Auteurs** : Samah AZIZ & Keltoum AGAZZARA
-**Projet** : Master Intelligence Artificielle - 2026
+
+## ⚠️ 5. Difficultés Rencontrées & Solutions (Log Technique)
+
+Durant le développement, plusieurs défis majeurs ont été surmontés :
+
+1. **Connexion Cloud-Local** : Botpress ne pouvait pas accéder à `localhost`.
+   - *Solution* : Intégration de ngrok avec le header `ngrok-skip-browser-warning: true`.
+2. **Hallucinations du Modèle** : Mistral inventait parfois des procédures inexistantes.
+   - *Solution* : Verrouillage du prompt pour forcer l'utilisation stricte du contexte RAG.
+3. **Timeouts Webhook** : Qdrant ou Mistral mettaient parfois trop de temps à répondre (> 30s).
+   - *Solution* : Optimisation de la recherche (top 3 documents max) et augmentation du timeout dans les scripts Botpress.
+4. **Format Propriétaire** : Le fichier `.bpz` de Botpress ne pouvait pas être édité manuellement.
+   - *Solution* : Workflow strict d'Import/Export via Botpress Studio.
+
+---
+
+## 📄 6. Structure des Fichiers Clés
+- `load.py` : Script d'indexation (Lit `documents/` -> Mistral Embed -> Qdrant).
+- `Wathiqa.json` : Workflow n8n (Le pipeline RAG complet).
+- `Wathiqa.bpz` : Export du bot (Intelligence conversationnelle + UI).
+- `documents/` : Knowledge base (57 fichiers texte officiels).
+
+---
+
+## 👥 Équipe Projet
+- **Samah AZIZ** (Concept Architecture & MLOps)
+- **Keltoum AGAZZARA** (Data Strategy & UI)
+
+**Master IA - 2026**
