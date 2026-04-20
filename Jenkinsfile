@@ -54,7 +54,6 @@ pipeline {
 
                 stage('Requirements') {
                     steps {
-                        // Utilise triple-quotes pour éviter les conflits de guillemets
                         sh '''
                         python3 << 'PYEOF'
 import sys
@@ -71,58 +70,86 @@ PYEOF
             }
         }
 
-        // 3. Vérification des services en parallèle — les 4 checks tournent en même temps
-        //    Qdrant et n8n ont un redémarrage automatique si hors ligne
+        // 3. Vérification des services en parallèle
+        //
+        //  Docker   : on détecte si Docker est accessible et on stocke le résultat.
+        //             Si Docker est KO, on ne peut pas redémarrer Qdrant/n8n — on les
+        //             vérifie quand même et on échoue proprement si nécessaire.
+        //
+        //  Qdrant   : BLOQUANT — si KO, on tente docker restart (si Docker OK).
+        //  n8n      : BLOQUANT — idem.
+        //  Botpress : on tente 3 fois avec 5s d'attente. Si toujours KO → warning seulement.
+
         stage('3. Vérification des Services') {
             options { timeout(time: 5, unit: 'MINUTES') }
-            parallel {
+            steps {
+                script {
 
-                stage('Docker') {
-                    steps {
-                        script {
-                            if (sh(script: 'docker ps', returnStatus: true) != 0)
-                                error "Docker inaccessible — arrêt du pipeline."
-                            echo "Docker OK"
-                        }
-                    }
-                }
+                    // --- Docker ---
+                    def dockerOK = (sh(script: 'docker ps', returnStatus: true) == 0)
+                    if (dockerOK)
+                        echo "Docker OK"
+                    else
+                        echo "AVERTISSEMENT : Docker inaccessible — les redémarrages automatiques sont désactivés."
 
-                stage('Qdrant') {
-                    steps {
-                        script {
-                            if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0) {
-                                sh 'docker restart desktop-qdrant-1 || true'
-                                sleep 10
-                                if (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) != 0)
-                                    error "Qdrant hors ligne — arrêt du pipeline."
-                            }
-                            echo "Qdrant OK"
+                    // --- Qdrant ---
+                    def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
+                    if (!qdrantOK) {
+                        if (dockerOK) {
+                            echo "Qdrant KO — tentative de redémarrage..."
+                            sh 'docker restart desktop-qdrant-1 || true'
+                            sleep 10
+                            qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
+                            if (qdrantOK)
+                                echo "Qdrant redémarré avec succès."
+                            else
+                                error "Qdrant toujours hors ligne après redémarrage — arrêt du pipeline."
+                        } else {
+                            error "Qdrant hors ligne et Docker inaccessible — impossible de réparer. Arrêt du pipeline."
                         }
+                    } else {
+                        echo "Qdrant OK"
                     }
-                }
 
-                stage('n8n') {
-                    steps {
-                        script {
-                            if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0) {
-                                sh 'docker restart desktop-n8n-1 || true'
-                                sleep 10
-                                if (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) != 0)
-                                    error "n8n hors ligne — arrêt du pipeline."
-                            }
-                            echo "n8n OK"
+                    // --- n8n ---
+                    def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
+                    if (!n8nOK) {
+                        if (dockerOK) {
+                            echo "n8n KO — tentative de redémarrage..."
+                            sh 'docker restart desktop-n8n-1 || true'
+                            sleep 10
+                            n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
+                            if (n8nOK)
+                                echo "n8n redémarré avec succès."
+                            else
+                                error "n8n toujours hors ligne après redémarrage — arrêt du pipeline."
+                        } else {
+                            error "n8n hors ligne et Docker inaccessible — impossible de réparer. Arrêt du pipeline."
                         }
+                    } else {
+                        echo "n8n OK"
                     }
-                }
 
-                stage('Botpress') {
-                    steps {
-                        script {
-                            if (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) != 0)
-                                error "Botpress inaccessible — arrêt du pipeline."
-                            echo "Botpress OK"
-                        }
+                    // --- Botpress : 3 tentatives espacées de 5s ---
+                    def botpressOK = false
+                    for (int i = 1; i <= 3; i++) {
+                        botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
+                        if (botpressOK) break
+                        echo "Botpress KO (tentative ${i}/3) — nouvel essai dans 5s..."
+                        sleep 5
                     }
+                    if (botpressOK)
+                        echo "Botpress OK"
+                    else
+                        echo "AVERTISSEMENT : Botpress toujours inaccessible après 3 tentatives (non bloquant)."
+
+                    // --- Résumé ---
+                    echo "══════════════════════════════════"
+                    echo "Docker   : ${dockerOK   ? 'OK' : 'AVERTISSEMENT'}"
+                    echo "Qdrant   : ${qdrantOK   ? 'OK' : 'ECHEC'}"
+                    echo "n8n      : ${n8nOK      ? 'OK' : 'ECHEC'}"
+                    echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT'}"
+                    echo "══════════════════════════════════"
                 }
             }
         }
