@@ -21,7 +21,27 @@ pipeline {
             }
         }
 
-        stage('2. Self-Healing') {
+        stage('2. Vérification de Syntaxe') {
+            steps {
+                echo '🔍 Vérification des fichiers du projet...'
+                sh '''
+                echo "📄 Fichiers requis :"
+
+                test -f load.py          && echo "✅ load.py trouvé"          || echo "❌ load.py MANQUANT"
+                test -f requirements.txt && echo "✅ requirements.txt trouvé" || echo "❌ requirements.txt MANQUANT"
+                test -f Wathiqa.json     && echo "✅ Wathiqa.json trouvé"     || echo "❌ Wathiqa.json MANQUANT"
+                test -f Wathiqa.bpz      && echo "✅ Wathiqa.bpz trouvé"      || echo "❌ Wathiqa.bpz MANQUANT"
+                test -d documents        && echo "✅ documents/ trouvé"        || echo "❌ documents/ MANQUANT"
+                '''
+
+                echo '🐍 Vérification de la syntaxe Python...'
+                sh 'python3 -c "import py_compile; py_compile.compile(\"load.py\", doraise=True)" || python -c "import py_compile; py_compile.compile(\"load.py\", doraise=True)"'
+
+                echo '✅ Syntaxe OK — Aucune erreur détectée.'
+            }
+        }
+
+        stage('3. Self-Healing') {
             options { timeout(time: 3, unit: 'MINUTES') }
             steps {
                 script {
@@ -68,7 +88,7 @@ pipeline {
             }
         }
 
-        stage('3. Build & Install') {
+        stage('4. Build & Install') {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 echo '📦 Installation de Python...'
@@ -80,7 +100,7 @@ pipeline {
             }
         }
 
-        stage('4. Pipeline IA') {
+        stage('5. Pipeline IA') {
             options { timeout(time: 10, unit: 'MINUTES') }
             steps {
                 echo '🚀 Indexation des 57 documents...'
