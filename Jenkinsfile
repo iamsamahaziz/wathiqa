@@ -41,48 +41,65 @@ pipeline {
             }
         }
 
-        stage('3. Self-Healing') {
-            options { timeout(time: 3, unit: 'MINUTES') }
+        stage('3. Self-Healing & Validation') {
+            options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 script {
-
-                    // 2.1 — Docker
+                    // 3.1 — Docker
                     echo '🐳 Vérification de Docker...'
                     def dockerOK = (sh(script: 'docker ps', returnStatus: true) == 0)
-                    echo dockerOK ? '✅ Docker OK' : '⚠️ Docker inaccessible'
+                    if (!dockerOK) {
+                        error "❌ Docker est inaccessible ! Impossible de gérer les conteneurs. Arrêt du pipeline."
+                    }
+                    echo '✅ Docker OK'
 
-                    // 2.2 — Qdrant
+                    // 3.2 — Qdrant
                     echo '🧠 Vérification de Qdrant...'
                     def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
-                    echo qdrantOK ? '✅ Qdrant OK' : '❌ Qdrant KO'
-                    if (!qdrantOK && dockerOK) {
-                        echo '🔄 Redémarrage de Qdrant...'
-                        sh 'timeout 15 docker restart desktop-qdrant-1 || true'
-                        sleep 5
+                    if (!qdrantOK) {
+                        echo '⚠️ Qdrant KO. Tentative de réparation...'
+                        sh 'timeout 20 docker restart desktop-qdrant-1 || true'
+                        sleep 10
+                        // Re-vérification après réparation
+                        qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
                     }
 
-                    // 2.3 — n8n
+                    if (!qdrantOK) {
+                        error "❌ Qdrant est toujours HORS LIGNE après tentative de redémarrage. Arrêt du pipeline."
+                    }
+                    echo '✅ Qdrant OK'
+
+                    // 3.3 — n8n
                     echo '⚙️ Vérification de n8n...'
                     def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                    echo n8nOK ? '✅ n8n OK' : '❌ n8n KO'
-                    if (!n8nOK && dockerOK) {
-                        echo '🔄 Redémarrage de n8n...'
-                        sh 'timeout 15 docker restart desktop-n8n-1 || true'
-                        sleep 5
+                    if (!n8nOK) {
+                        echo '⚠️ n8n KO. Tentative de réparation...'
+                        sh 'timeout 20 docker restart desktop-n8n-1 || true'
+                        sleep 10
+                        // Re-vérification après réparation
+                        n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
                     }
 
-                    // 2.4 — Botpress Cloud
+                    if (!n8nOK) {
+                        error "❌ n8n est toujours HORS LIGNE après tentative de redémarrage. Arrêt du pipeline."
+                    }
+                    echo '✅ n8n OK'
+
+                    // 3.4 — Botpress Cloud (Service externe)
                     echo '💬 Vérification de Botpress...'
                     def botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
-                    echo botpressOK ? '✅ Botpress OK' : '⚠️ Botpress injoignable'
+                    if (!botpressOK) {
+                        error "❌ Botpress Cloud est injoignable. Le chatbot ne pourra pas communiquer. Arrêt du pipeline."
+                    }
+                    echo '✅ Botpress OK'
 
-                    // Résumé
+                    // Résumé final
                     echo '══════════════════════════════════'
-                    echo '📊 RÉSUMÉ :'
-                    echo "   Docker   : ${dockerOK   ? '✅' : '❌'}"
-                    echo "   Qdrant   : ${qdrantOK   ? '✅' : '❌'}"
-                    echo "   n8n      : ${n8nOK      ? '✅' : '❌'}"
-                    echo "   Botpress : ${botpressOK ? '✅' : '❌'}"
+                    echo '📊 RÉSUMÉ SANTÉ :'
+                    echo "   Docker   : ✅"
+                    echo "   Qdrant   : ✅"
+                    echo "   n8n      : ✅"
+                    echo "   Botpress : ✅"
                     echo '══════════════════════════════════'
                 }
             }
