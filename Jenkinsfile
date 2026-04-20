@@ -54,7 +54,18 @@ pipeline {
 
                 stage('Requirements') {
                     steps {
-                        sh 'python3 -c "lines=open(\"requirements.txt\").readlines(); exit(0 if lines else 1)" && echo "requirements.txt OK"'
+                        // Utilise triple-quotes pour éviter les conflits de guillemets
+                        sh '''
+                        python3 << 'PYEOF'
+import sys
+with open('requirements.txt') as f:
+    lines = [l for l in f if l.strip() and not l.startswith('#')]
+if not lines:
+    print("requirements.txt est vide !")
+    sys.exit(1)
+print(f"requirements.txt OK — {len(lines)} dependances")
+PYEOF
+                        '''
                     }
                 }
             }
@@ -150,16 +161,16 @@ data = json.load(sys.stdin)
 cols = data.get('result', {}).get('collections', [])
 print(len(cols))
 ")
-                [ "$COLLECTIONS" -gt 0 ] && echo "$COLLECTIONS collection(s) indexée(s)." || { echo "Aucune collection trouvée."; exit 1; }
+                [ "$COLLECTIONS" -gt 0 ] && echo "$COLLECTIONS collection(s) indexee(s)." || { echo "Aucune collection trouvee."; exit 1; }
                 '''
             }
         }
     }
 
     post {
-        success { echo "Pipeline terminé avec succès — commit ${env.GIT_COMMIT?.take(8)}" }
-        failure { echo "Pipeline en échec — consultez les logs." }
-        aborted { echo "Pipeline annulé." }
+        success { echo "Pipeline termine avec succes — commit ${env.GIT_COMMIT?.take(8)}" }
+        failure { echo "Pipeline en echec — consultez les logs." }
+        aborted { echo "Pipeline annule." }
         cleanup {
             cleanWs(deleteDirs: true, notFailBuild: true,
                     patterns: [[pattern: 'venv/**', type: 'EXCLUDE']])
