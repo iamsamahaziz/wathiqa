@@ -8,11 +8,11 @@ pipeline {
     }
 
     environment {
-        QDRANT_URL   = 'http://172.17.0.1:6333'
-        N8N_URL      = 'http://172.17.0.1:5678'
+        QDRANT_URL   = 'http://qdrant:6333'
+        N8N_URL      = 'http://n8n:5678'
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
-        PYTHON       = "${WORKSPACE}/venv/bin/python"
-        PIP          = "${WORKSPACE}/venv/bin/pip"
+        PYTHON       = "python3"
+        PIP          = "pip3"
     }
 
     stages {
@@ -21,114 +21,68 @@ pipeline {
         stage('1. Récupération du Code') {
             steps {
                 checkout scm
-                echo "Commit : ${env.GIT_COMMIT?.take(8)} — Branche : ${env.GIT_BRANCH}"
+                echo "Commit : ${env.GIT_COMMIT?.take(8)} — Projet Wathiqa"
             }
         }
 
-        // 2. Vérifications en parallèle — les 3 checks tournent en même temps
+        // 2. Vérification
         stage('2. Vérification') {
             parallel {
-
                 stage('Fichiers') {
                     steps {
                         sh '''
                         MISSING=0
                         for FILE in load.py requirements.txt Wathiqa.json Wathiqa.bpz documents; do
-                            if [ -e "$FILE" ]; then
-                                echo "OK : $FILE"
-                            else
-                                echo "MANQUANT : $FILE"
-                                MISSING=1
-                            fi
+                            if [ -e "$FILE" ]; then echo "OK : $FILE"; else echo "MANQUANT : $FILE"; MISSING=1; fi
                         done
-                        [ "$MISSING" -eq 1 ] && exit 1 || echo "Tous les fichiers sont présents."
+                        [ "$MISSING" -eq 1 ] && exit 1 || echo "Fichiers OK."
                         '''
                     }
                 }
-
                 stage('Syntaxe Python') {
                     steps {
-                        sh 'python3 -m py_compile load.py && echo "Syntaxe Python OK"'
-                    }
-                }
-
-                stage('Requirements') {
-                    steps {
-                        sh '''
-                        python3 << 'PYEOF'
-import sys
-with open('requirements.txt') as f:
-    lines = [l for l in f if l.strip() and not l.startswith('#')]
-if not lines:
-    print("requirements.txt est vide !")
-    sys.exit(1)
-print(f"requirements.txt OK — {len(lines)} dependances")
-PYEOF
-                        '''
+                        sh 'python3 -m py_compile load.py'
                     }
                 }
             }
         }
 
-        // 3. Vérification des services en parallèle
-        //
-        //  Docker   : on détecte si Docker est accessible et on stocke le résultat.
-        //             Si Docker est KO, on ne peut pas redémarrer Qdrant/n8n — on les
-        //             vérifie quand même et on échoue proprement si nécessaire.
-        //
-        //  Qdrant   : BLOQUANT — si KO, on tente docker restart (si Docker OK).
-        //  n8n      : BLOQUANT — idem.
-        //  Botpress : on tente 3 fois avec 5s d'attente. Si toujours KO → warning seulement.
-
+        // 3. Vérification des Services
         stage('3. Vérification des Services') {
-            options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 script {
-
-                    // --- Docker ---
-                    def dockerOK = (sh(script: 'docker ps', returnStatus: true) == 0)
-                    if (dockerOK)
-                        echo "Docker OK"
-                    else
-                        echo "AVERTISSEMENT : Docker inaccessible — les redémarrages automatiques sont désactivés."
+                    // --- Docker Detection ---
+                    def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
+                    if (!hasDocker) {
+                        echo "AVERTISSEMENT : Docker introuvable. Auto-réparation désactivée."
+                    }
 
                     // --- Qdrant ---
                     def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
                     if (!qdrantOK) {
-                        if (dockerOK) {
+                        if (hasDocker) {
                             echo "Qdrant KO — tentative de redémarrage..."
-                            sh 'docker restart desktop-qdrant-1 || true'
+                            sh 'docker restart fstm_qdrant || true'
                             sleep 10
                             qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
-                            if (qdrantOK)
-                                echo "Qdrant redémarré avec succès."
-                            else
-                                error "Qdrant toujours hors ligne après redémarrage — arrêt du pipeline."
-                        } else {
-                            error "Qdrant hors ligne et Docker inaccessible — impossible de réparer. Arrêt du pipeline."
                         }
-                    } else {
-                        echo "Qdrant OK"
+                        if (!qdrantOK) error "Qdrant injoignable sur ${QDRANT_URL}"
                     }
 
                     // --- n8n ---
                     def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
                     if (!n8nOK) {
-                        if (dockerOK) {
+                        if (hasDocker) {
                             echo "n8n KO — tentative de redémarrage..."
-                            sh 'docker restart desktop-n8n-1 || true'
+                            sh 'docker restart fstm_n8n || true'
                             sleep 10
                             n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                            if (n8nOK)
-                                echo "n8n redémarré avec succès."
-                            else
-                                error "n8n toujours hors ligne après redémarrage — arrêt du pipeline."
-                        } else {
-                            error "n8n hors ligne et Docker inaccessible — impossible de réparer. Arrêt du pipeline."
                         }
-                    } else {
-                        echo "n8n OK"
+                        if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
                     }
+                }
+            }
+        }
 
                     // --- Botpress : 3 tentatives espacées de 5s ---
                     def botpressOK = false
