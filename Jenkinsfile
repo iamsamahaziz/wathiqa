@@ -9,61 +9,98 @@ pipeline {
     environment {
         QDRANT_URL   = 'http://172.17.0.1:6333'
         N8N_URL      = 'http://172.17.0.1:5678'
-        BOTPRESS_URL = 'https://botpress.com'
+        BOTPRESS_URL = 'https://cdn.botpress.cloud'
     }
 
     stages {
+
+        // ═══════════════════════════════════════════════════
+        // STAGE 1 : Récupérer le code depuis GitHub
+        // ═══════════════════════════════════════════════════
         stage('1. Récupération du Code') {
             steps {
-                echo '🌐 Téléchargement de la dernière version du projet...'
+                echo '🌐 Téléchargement du projet depuis GitHub...'
                 checkout scm
             }
         }
 
-        stage('2. Vérifications & Self-Healing') {
+        // ═══════════════════════════════════════════════════
+        // STAGE 2 : Self-Healing (Vérification des 4 services)
+        // ═══════════════════════════════════════════════════
+        stage('2. Self-Healing') {
             options { timeout(time: 3, unit: 'MINUTES') }
             steps {
                 script {
-                    echo "🔍 Vérification de la disponibilité de Docker..."
-                    def dockerCheck = sh(script: 'docker ps > /dev/null 2>&1', returnStatus: true)
 
-                    if (dockerCheck != 0) {
-                        echo "⚠️ Docker n'est pas accessible. On continue sans self-healing."
+                    // ── 2.1 Vérifier Docker ──
+                    echo '🐳 Test : Docker est-il accessible ?'
+                    def dockerOK = sh(script: 'docker ps > /dev/null 2>&1', returnStatus: true) == 0
+
+                    if (dockerOK) {
+                        echo '✅ Docker est accessible.'
+                    } else {
+                        echo '⚠️ Docker est inaccessible. Le self-healing ne pourra pas redémarrer les services.'
                     }
 
-                    echo "💓 Test de connexion : Qdrant..."
-                    def qdrantCheck = sh(script: "curl --connect-timeout 5 --max-time 10 -sf ${env.QDRANT_URL}/ > /dev/null 2>&1", returnStatus: true)
-                    if (qdrantCheck == 0) {
+                    // ── 2.2 Vérifier Qdrant ──
+                    echo '🧠 Test : Qdrant répond-il ?'
+                    def qdrantOK = sh(script: "curl -sf --max-time 10 ${env.QDRANT_URL}/", returnStatus: true) == 0
+
+                    if (qdrantOK) {
                         echo '✅ Qdrant est en ligne.'
                     } else {
-                        echo '⚠️ Qdrant ne répond pas.'
-                        if (dockerCheck == 0) {
-                            echo 'Tentative de redémarrage...'
+                        echo '❌ Qdrant ne répond pas !'
+                        if (dockerOK) {
+                            echo '🔄 Tentative de redémarrage de Qdrant...'
                             sh(script: 'timeout 15 docker restart desktop-qdrant-1 || true', returnStatus: true)
                             sleep 5
                         }
                     }
 
-                    echo "💓 Test de connexion : n8n..."
-                    def n8nCheck = sh(script: "curl --connect-timeout 5 --max-time 10 -sf ${env.N8N_URL}/ > /dev/null 2>&1", returnStatus: true)
-                    if (n8nCheck == 0) {
+                    // ── 2.3 Vérifier n8n ──
+                    echo '⚙️ Test : n8n répond-il ?'
+                    def n8nOK = sh(script: "curl -sf --max-time 10 ${env.N8N_URL}/", returnStatus: true) == 0
+
+                    if (n8nOK) {
                         echo '✅ n8n est en ligne.'
                     } else {
-                        echo '⚠️ n8n ne répond pas.'
-                        if (dockerCheck == 0) {
-                            echo 'Tentative de redémarrage...'
+                        echo '❌ n8n ne répond pas !'
+                        if (dockerOK) {
+                            echo '🔄 Tentative de redémarrage de n8n...'
                             sh(script: 'timeout 15 docker restart desktop-n8n-1 || true', returnStatus: true)
                             sleep 5
                         }
                     }
+
+                    // ── 2.4 Vérifier Botpress Cloud ──
+                    echo '💬 Test : Botpress Cloud est-il joignable ?'
+                    def botpressOK = sh(script: "curl -sf --max-time 10 ${env.BOTPRESS_URL}/", returnStatus: true) == 0
+
+                    if (botpressOK) {
+                        echo '✅ Botpress Cloud est joignable.'
+                    } else {
+                        echo '⚠️ Botpress Cloud est injoignable (problème réseau ou service externe en panne).'
+                    }
+
+                    // ── Résumé ──
+                    echo '══════════════════════════════════'
+                    echo "📊 RÉSUMÉ SELF-HEALING :"
+                    echo "   Docker   : ${dockerOK   ? '✅ OK' : '❌ KO'}"
+                    echo "   Qdrant   : ${qdrantOK   ? '✅ OK' : '❌ KO'}"
+                    echo "   n8n      : ${n8nOK      ? '✅ OK' : '❌ KO'}"
+                    echo "   Botpress : ${botpressOK ? '✅ OK' : '❌ KO'}"
+                    echo '══════════════════════════════════'
                 }
             }
         }
 
+        // ═══════════════════════════════════════════════════
+        // STAGE 3 : Installer Python et les dépendances
+        // ═══════════════════════════════════════════════════
         stage('3. Build & Install') {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
-                echo '📦 Préparation de l\'environnement Python...'
+                echo '📦 Création de l\'environnement Python...'
                 sh '''
                 python3 -m venv venv || python -m venv venv
                 ./venv/bin/pip install --upgrade pip
@@ -72,10 +109,13 @@ pipeline {
             }
         }
 
-        stage('4. Pipeline IA (Exécution)') {
+        // ═══════════════════════════════════════════════════
+        // STAGE 4 : Lancer le pipeline IA (indexation)
+        // ═══════════════════════════════════════════════════
+        stage('4. Pipeline IA') {
             options { timeout(time: 10, unit: 'MINUTES') }
             steps {
-                echo '🚀 Lancement du traitement des documents Wathiqa...'
+                echo '🚀 Indexation des 57 documents dans Qdrant...'
                 withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
                     sh '''
                     export MISTRAL_KEY=$MISTRAL_KEY
