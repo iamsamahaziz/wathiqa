@@ -47,7 +47,6 @@ pipeline {
                         find . -name "*.json" ! -path "*/.*" -exec python3 -c "import json; json.load(open('{}'))" \\; -print
                         
                         echo "=== 3. Validation YAML (Structure) ==="
-                        # Simple check for docker-compose or other yml files
                         find . -name "*.yml" -o -name "*.yaml" ! -path "*/.*" -exec echo "Validating {}" \\;
                         
                         echo "=== 4. Audit HTML (Interface) ==="
@@ -63,45 +62,55 @@ pipeline {
         }
 
         stage('3. Vérification des Services') {
-            steps {
-                script {
-                    def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
-                    if (!hasDocker) echo "AVERTISSEMENT : Docker introuvable. Auto-réparation désactivée."
+            parallel {
 
-                    // --- Qdrant ---
-                    def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
-                    if (!qdrantOK && hasDocker) {
-                        sh 'docker restart fstm_qdrant || true'
-                        sleep 10
-                        qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
+                stage('Qdrant') {
+                    steps {
+                        script {
+                            def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
+                            def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
+                            if (!qdrantOK && hasDocker) {
+                                sh 'docker restart fstm_qdrant || true'
+                                sleep 10
+                                qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
+                            }
+                            if (!qdrantOK) error "Qdrant injoignable sur ${QDRANT_URL}"
+                            echo "Qdrant : OK"
+                        }
                     }
-                    if (!qdrantOK) error "Qdrant injoignable sur ${QDRANT_URL}"
-
-                    // --- n8n ---
-                    def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                    if (!n8nOK && hasDocker) {
-                        sh 'docker restart fstm_n8n || true'
-                        sleep 10
-                        n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                    }
-                    if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
-
-                    // --- Botpress (non bloquant) ---
-                    def botpressOK = false
-                    for (int i = 1; i <= 3; i++) {
-                        botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
-                        if (botpressOK) break
-                        echo "Botpress KO (tentative ${i}/3) — nouvel essai dans 5s..."
-                        sleep 5
-                    }
-
-                    echo "══════════════════════════════════"
-                    echo "Docker   : ${hasDocker  ? 'OK' : 'AVERTISSEMENT'}"
-                    echo "Qdrant   : ${qdrantOK   ? 'OK' : 'ECHEC'}"
-                    echo "n8n      : ${n8nOK      ? 'OK' : 'ECHEC'}"
-                    echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT'}"
-                    echo "══════════════════════════════════"
                 }
+
+                stage('n8n') {
+                    steps {
+                        script {
+                            def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
+                            def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
+                            if (!n8nOK && hasDocker) {
+                                sh 'docker restart fstm_n8n || true'
+                                sleep 10
+                                n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
+                            }
+                            if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
+                            echo "n8n : OK"
+                        }
+                    }
+                }
+
+                stage('Botpress') {
+                    steps {
+                        script {
+                            def botpressOK = false
+                            for (int i = 1; i <= 3; i++) {
+                                botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
+                                if (botpressOK) break
+                                echo "Botpress KO (tentative ${i}/3) — nouvel essai dans 5s..."
+                                sleep 5
+                            }
+                            echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT (non bloquant)'}"
+                        }
+                    }
+                }
+
             }
         }
 
