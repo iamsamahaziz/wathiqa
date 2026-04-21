@@ -11,8 +11,9 @@ pipeline {
         QDRANT_URL   = 'http://qdrant:6333'
         N8N_URL      = 'http://n8n:5678'
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
-        PYTHON       = "python3"
-        PIP          = "pip3"
+        VENV         = "${WORKSPACE}/venv"
+        PYTHON       = "${WORKSPACE}/venv/bin/python"
+        PIP          = "${WORKSPACE}/venv/bin/pip"
     }
 
     stages {
@@ -39,7 +40,12 @@ pipeline {
                 }
                 stage('Syntaxe Python') {
                     steps {
-                        sh 'python3 -m py_compile load.py'
+                        sh '''
+                        find . -name "*.py" ! -path "./.git/*" ! -path "./venv/*" | while read f; do
+                            python3 -m py_compile "$f" && echo "OK : $f" || exit 1
+                        done
+                        echo "Syntaxe OK."
+                        '''
                     }
                 }
             }
@@ -48,37 +54,28 @@ pipeline {
         stage('3. Vérification des Services') {
             steps {
                 script {
-                    // --- Docker Detection ---
                     def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
-                    if (!hasDocker) {
-                        echo "AVERTISSEMENT : Docker introuvable. Auto-réparation désactivée."
-                    }
+                    if (!hasDocker) echo "AVERTISSEMENT : Docker introuvable. Auto-réparation désactivée."
 
                     // --- Qdrant ---
                     def qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
-                    if (!qdrantOK) {
-                        if (hasDocker) {
-                            echo "Qdrant KO — tentative de redémarrage..."
-                            sh 'docker restart fstm_qdrant || true'
-                            sleep 10
-                            qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
-                        }
-                        if (!qdrantOK) error "Qdrant injoignable sur ${QDRANT_URL}"
+                    if (!qdrantOK && hasDocker) {
+                        sh 'docker restart fstm_qdrant || true'
+                        sleep 10
+                        qdrantOK = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
                     }
+                    if (!qdrantOK) error "Qdrant injoignable sur ${QDRANT_URL}"
 
                     // --- n8n ---
                     def n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                    if (!n8nOK) {
-                        if (hasDocker) {
-                            echo "n8n KO — tentative de redémarrage..."
-                            sh 'docker restart fstm_n8n || true'
-                            sleep 10
-                            n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
-                        }
-                        if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
+                    if (!n8nOK && hasDocker) {
+                        sh 'docker restart fstm_n8n || true'
+                        sleep 10
+                        n8nOK = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
                     }
+                    if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
 
-                    // --- Botpress : 3 tentatives espacées de 5s ---
+                    // --- Botpress (non bloquant) ---
                     def botpressOK = false
                     for (int i = 1; i <= 3; i++) {
                         botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
@@ -86,12 +83,7 @@ pipeline {
                         echo "Botpress KO (tentative ${i}/3) — nouvel essai dans 5s..."
                         sleep 5
                     }
-                    if (botpressOK)
-                        echo "Botpress OK"
-                    else
-                        echo "AVERTISSEMENT : Botpress toujours inaccessible après 3 tentatives (non bloquant)."
 
-                    // --- Résumé ---
                     echo "══════════════════════════════════"
                     echo "Docker   : ${hasDocker  ? 'OK' : 'AVERTISSEMENT'}"
                     echo "Qdrant   : ${qdrantOK   ? 'OK' : 'ECHEC'}"
@@ -106,7 +98,7 @@ pipeline {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 sh '''
-                [ ! -f "$PYTHON" ] && python3 -m venv venv
+                [ ! -d "$VENV" ] && python3 -m venv "$VENV"
                 "$PIP" install --upgrade pip --quiet
                 "$PIP" install -r requirements.txt --quiet
                 "$PIP" check && echo "Aucun conflit de dépendances."
@@ -139,9 +131,9 @@ print(len(cols))
 
     post {
         success { echo "Pipeline termine avec succes — commit ${env.GIT_COMMIT?.take(8)}" }
-        failure { echo "Pipeline en echec — consultez les logs." }
-        aborted { echo "Pipeline annule." }
-        cleanup {
+        failure  { echo "Pipeline en echec — consultez les logs." }
+        aborted  { echo "Pipeline annule." }
+        cleanup  {
             cleanWs(deleteDirs: true, notFailBuild: true,
                     patterns: [[pattern: 'venv/**', type: 'EXCLUDE']])
         }
