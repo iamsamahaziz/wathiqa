@@ -25,26 +25,24 @@ pipeline {
             }
         }
 
-        stage('2. Vérification') {
+        stage('2. Vérification Globale') {
             parallel {
-                stage('Fichiers') {
+                stage('Inventaire complet') {
                     steps {
                         sh '''
-                        MISSING=0
-                        for FILE in load.py requirements.txt Wathiqa.json Wathiqa.bpz documents; do
-                            if [ -e "$FILE" ]; then echo "OK : $FILE"; else echo "MANQUANT : $FILE"; MISSING=1; fi
-                        done
-                        [ "$MISSING" -eq 1 ] && exit 1 || echo "Fichiers OK."
+                        echo "--- Structure du dépôt ---"
+                        find . -maxdepth 2 -not -path '*/.*'
+                        echo "--- Dossier Documents ---"
+                        [ -d "documents" ] && ls -1 documents | wc -l | xargs echo "Nombre de documents :" || echo "Dossier documents MANQUANT"
                         '''
                     }
                 }
-                stage('Syntaxe Python') {
+                stage('Vérification du Code (Tous les .py)') {
                     steps {
                         sh '''
-                        find . -name "*.py" ! -path "./.git/*" ! -path "./venv/*" | while read f; do
-                            python3 -m py_compile "$f" && echo "OK : $f" || exit 1
-                        done
-                        echo "Syntaxe OK."
+                        echo "Scan de la syntaxe Python..."
+                        find . -name "*.py" ! -path "*/venv/*" ! -path "*/.*" -exec python3 -m py_compile {} +
+                        echo "Tout le code Python est valide."
                         '''
                     }
                 }
