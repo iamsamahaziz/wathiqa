@@ -17,7 +17,6 @@ pipeline {
 
     stages {
 
-        // 1. Télécharge le code depuis GitHub
         stage('1. Récupération du Code') {
             steps {
                 checkout scm
@@ -25,7 +24,6 @@ pipeline {
             }
         }
 
-        // 2. Vérification
         stage('2. Vérification') {
             parallel {
                 stage('Fichiers') {
@@ -47,7 +45,6 @@ pipeline {
             }
         }
 
-        // 3. Vérification des Services
         stage('3. Vérification des Services') {
             steps {
                 script {
@@ -80,9 +77,6 @@ pipeline {
                         }
                         if (!n8nOK) error "n8n injoignable sur ${N8N_URL}"
                     }
-                }
-            }
-        }
 
                     // --- Botpress : 3 tentatives espacées de 5s ---
                     def botpressOK = false
@@ -99,7 +93,7 @@ pipeline {
 
                     // --- Résumé ---
                     echo "══════════════════════════════════"
-                    echo "Docker   : ${dockerOK   ? 'OK' : 'AVERTISSEMENT'}"
+                    echo "Docker   : ${hasDocker  ? 'OK' : 'AVERTISSEMENT'}"
                     echo "Qdrant   : ${qdrantOK   ? 'OK' : 'ECHEC'}"
                     echo "n8n      : ${n8nOK      ? 'OK' : 'ECHEC'}"
                     echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT'}"
@@ -108,13 +102,11 @@ pipeline {
             }
         }
 
-        // 4. Crée l'environnement Python et installe les dépendances
         stage('4. Installation') {
             options { timeout(time: 5, unit: 'MINUTES') }
             steps {
                 sh '''
                 [ ! -f "$PYTHON" ] && python3 -m venv venv
-
                 "$PIP" install --upgrade pip --quiet
                 "$PIP" install -r requirements.txt --quiet
                 "$PIP" check && echo "Aucun conflit de dépendances."
@@ -122,7 +114,6 @@ pipeline {
             }
         }
 
-        // 5. Lance l'indexation des documents dans Qdrant
         stage('5. Indexation IA') {
             options { timeout(time: 10, unit: 'MINUTES') }
             steps {
@@ -133,8 +124,6 @@ pipeline {
                     "$PYTHON" load.py
                     '''
                 }
-
-                // Vérifie que l'indexation a bien créé des collections dans Qdrant
                 sh '''
                 COLLECTIONS=$(curl -sf "${QDRANT_URL}/collections" | python3 -c "
 import sys, json
