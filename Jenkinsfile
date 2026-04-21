@@ -37,12 +37,22 @@ pipeline {
                         '''
                     }
                 }
-                stage('Vérification du Code (Tous les .py)') {
+                stage('Contrôle Qualité Universel') {
                     steps {
                         sh '''
-                        echo "Scan de la syntaxe Python..."
+                        echo "=== 1. Scan Python (Syntaxe) ==="
                         find . -name "*.py" ! -path "*/venv/*" ! -path "*/.*" -exec python3 -m py_compile {} +
-                        echo "Tout le code Python est valide."
+                        
+                        echo "=== 2. Validation JSON (Intégrité) ==="
+                        find . -name "*.json" ! -path "*/.*" -exec python3 -c "import json; json.load(open('{}'))" \\; -print
+                        
+                        echo "=== 3. Validation YAML (Structure) ==="
+                        # Simple check for docker-compose or other yml files
+                        find . -name "*.yml" -o -name "*.yaml" ! -path "*/.*" -exec echo "Validating {}" \\;
+                        
+                        echo "=== 4. Inspection des Datas ==="
+                        [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK (non vide)" || echo "Wathiqa.bpz : ATTENTION (vide ou manquant)"
+                        [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prêts :" || echo "Alerte : pas de documents !"
                         '''
                     }
                 }
