@@ -50,7 +50,10 @@ pipeline {
                         # Simple check for docker-compose or other yml files
                         find . -name "*.yml" -o -name "*.yaml" ! -path "*/.*" -exec echo "Validating {}" \\;
                         
-                        echo "=== 4. Inspection des Datas ==="
+                        echo "=== 4. Audit HTML (Interface) ==="
+                        find . -name "*.html" ! -path "*/venv/*" ! -path "*/.*" -exec grep -qE "<html>|<head>|<body>" {} \\; -print || echo "Attention : fichiers HTML mal formés."
+
+                        echo "=== 5. Inspection des Datas ==="
                         [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK (non vide)" || echo "Wathiqa.bpz : ATTENTION (vide ou manquant)"
                         [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prêts :" || echo "Alerte : pas de documents !"
                         '''
