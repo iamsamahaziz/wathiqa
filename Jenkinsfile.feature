@@ -8,8 +8,6 @@ pipeline {
     }
 
     environment {
-        // Commande Docker forcée par le réseau TCP pour Windows
-        DOCKER_CMD   = "docker -H tcp://172.17.0.1:2375"
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
         VENV         = "${WORKSPACE}/venv"
         PYTHON       = "${WORKSPACE}/venv/bin/python"
@@ -20,9 +18,18 @@ pipeline {
 
     stages {
 
-        stage('1. Démarrage') {
+        stage('1. Initialisation & Détection IP') {
             steps {
                 script {
+                    // --- DETECTION DYNAMIQUE DE L'IP DE L'HOTE (VOTRE PC) ---
+                    // On cherche l'IP de la passerelle par défaut du conteneur
+                    def hostIp = sh(script: "ip route show | grep default | awk '{print \$3}'", returnStdout: true).trim()
+                    if (!hostIp) hostIp = "172.17.0.1" // Fallback standard
+                    
+                    env.DOCKER_CMD = "docker -H tcp://${hostIp}:2375"
+                    echo "--- Moteur Docker détecté sur l'IP : ${hostIp} ---"
+                    echo "--- Commande utilisée : ${env.DOCKER_CMD} ---"
+
                     def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: "feature_default"
                     def cleanBranch = rawBranch.split('/')[-1]
                     env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
@@ -35,19 +42,18 @@ pipeline {
                     }
                     
                     checkout scm
-                    echo "--- Pilotage Docker forcé via : ${env.DOCKER_CMD} ---"
                 }
             }
         }
 
-        stage('2. Vérification Globale') {
+        stage('2. Vérification du Projet') {
             parallel {
-                stage('Structure') {
+                stage('Fichiers') {
                     steps {
                         sh 'find . -maxdepth 2 -not -path "*/.*"'
                     }
                 }
-                stage('Audit Qualité') {
+                stage('Syntaxe') {
                     steps {
                         sh '''
                         find . -name "*.py" ! -path "*/venv/*" ! -path "*/.*" -exec python3 -m py_compile {} +
@@ -62,20 +68,19 @@ pipeline {
             steps {
                 script {
                     def slug = env.BRANCH_SLUG
-                    // On force l'utilisation du réseau et du pont TCP
                     sh "${DOCKER_CMD} network create fstm_network || true"
                     sh "${DOCKER_CMD} run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
                     sh "${DOCKER_CMD} run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
                     
-                    echo "Services isolés lancés."
+                    echo "Services isolés lancés sur le réseau interne."
                     sleep 15
                 }
             }
         }
 
-        stage('4. Vérification des Services') {
+        stage('4. Vérification de Santé') {
             parallel {
-                stage('Qdrant') {
+                stage('Qdrant Health') {
                     steps {
                         script {
                             def slug = env.BRANCH_SLUG
@@ -85,11 +90,11 @@ pipeline {
                                 sleep 10
                                 ok = (sh(script: "curl -sf --max-time 10 ${env.QDRANT_URL}", returnStatus: true) == 0)
                             }
-                            if (!ok) error "Échec Qdrant"
+                            if (!ok) error "Qdrant Isolé HS"
                         }
                     }
                 }
-                stage('n8n') {
+                stage('n8n Health') {
                     steps {
                         script {
                             def slug = env.BRANCH_SLUG
@@ -99,24 +104,19 @@ pipeline {
                                 sleep 10
                                 ok = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             }
-                            if (!ok) error "Échec n8n"
+                            if (!ok) error "n8n Isolé HS"
                         }
                     }
                 }
             }
         }
 
-        stage('5. Installation') {
+        stage('5. Installation & Indexation') {
             steps {
                 sh '''
                 [ ! -d "$VENV" ] && python3 -m venv "$VENV"
                 "$PIP" install -r requirements.txt --quiet
                 '''
-            }
-        }
-
-        stage('6. Indexation IA') {
-            steps {
                 withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
                     sh """
                     export MISTRAL_KEY=\$MISTRAL_KEY
@@ -131,8 +131,8 @@ pipeline {
     post {
         failure {
             script {
-                sh "${DOCKER_CMD} stop qdrant_${env.BRANCH_SLUG} n8n_${env.BRANCH_SLUG} || true"
-                sh "${DOCKER_CMD} rm   qdrant_${env.BRANCH_SLUG} n8n_${env.BRANCH_SLUG} || true"
+                sh "${env.DOCKER_CMD} stop qdrant_${env.BRANCH_SLUG} n8n_${env.BRANCH_SLUG} || true"
+                sh "${env.DOCKER_CMD} rm   qdrant_${env.BRANCH_SLUG} n8n_${env.BRANCH_SLUG} || true"
             }
         }
         cleanup {
