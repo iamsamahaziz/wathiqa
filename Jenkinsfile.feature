@@ -54,7 +54,7 @@ pipeline {
                     sh "docker run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
                     sh "docker run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
                     
-                    sleep 15
+                    sleep 25
                 }
             }
         }
