@@ -23,13 +23,20 @@ pipeline {
         stage('1. Demarrage') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
+                    // Correction pour le cas où BRANCH_NAME est null (Pipeline standard)
+                    def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: "feature_default"
+                    // On retire le préfixe 'origin/' si présent et on nettoie
+                    def cleanBranch = rawBranch.split('/')[-1]
+                    env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
+
+                    if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
                         error "Ce pipeline est pour les branches feature/ uniquement. Faites : git checkout -b feature/votre-nom"
                     }
                     checkout scm
-                    echo "Branche    : ${env.BRANCH_NAME}"
-                    echo "Developpeur: ${env.GIT_AUTHOR_NAME ?: 'inconnu'}"
-                    echo "Commit     : ${env.GIT_COMMIT?.take(8)}"
+                    echo "Branche Detectee : ${rawBranch}"
+                    echo "Slug Utilisé     : ${env.BRANCH_SLUG}"
+                    echo "Developpeur      : ${env.GIT_AUTHOR_NAME ?: 'inconnu'}"
+                    echo "Commit           : ${env.GIT_COMMIT?.take(8)}"
                 }
             }
         }
@@ -75,7 +82,7 @@ pipeline {
         stage('3. Lancement des Services') {
             steps {
                 script {
-                    def slug = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
+                    def slug = env.BRANCH_SLUG
 
                     sh 'docker network create fstm_network || true'
 
@@ -108,7 +115,7 @@ pipeline {
                 stage('Qdrant') {
                     steps {
                         script {
-                            def slug     = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
+                            def slug     = env.BRANCH_SLUG
                             def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
                             def ok       = (sh(script: "curl -sf --max-time 10 ${QDRANT_URL}", returnStatus: true) == 0)
 
@@ -129,7 +136,7 @@ pipeline {
                 stage('n8n') {
                     steps {
                         script {
-                            def slug      = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
+                            def slug      = env.BRANCH_SLUG
                             def hasDocker = (sh(script: 'command -v docker >/dev/null 2>&1', returnStatus: true) == 0)
                             def ok        = (sh(script: "curl -sf --max-time 10 ${N8N_URL}", returnStatus: true) == 0)
 
@@ -201,8 +208,8 @@ print(len(cols))
         stage('7. Pret') {
             steps {
                 script {
-                    def slug = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
-                    echo "Projet Wathiqa pret sur la branche ${env.BRANCH_NAME}"
+                    def slug = env.BRANCH_SLUG
+                    echo "Projet Wathiqa pret sur la branche ${env.BRANCH_SLUG}"
                     echo "Qdrant  : http://localhost:${QDRANT_PORT}"
                     echo "n8n     : http://localhost:${N8N_PORT}"
                     echo "Botpress: ${BOTPRESS_URL}"
@@ -214,11 +221,11 @@ print(len(cols))
 
     post {
         success {
-            echo "Pipeline reussi sur la branche ${env.BRANCH_NAME}"
+            echo "Pipeline reussi sur la branche ${env.BRANCH_SLUG}"
         }
         failure {
             script {
-                def slug = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
+                def slug = env.BRANCH_SLUG
                 echo "Pipeline en echec, suppression des conteneurs..."
                 sh """
                 docker stop qdrant_${slug} n8n_${slug} || true
