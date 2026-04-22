@@ -18,17 +18,31 @@ pipeline {
 
     stages {
 
-        stage('1. Initialisation & Détection IP') {
+        stage('1. Diagnostic & Détection Réseau') {
             steps {
                 script {
-                    // --- DETECTION DYNAMIQUE DE L'IP DE L'HOTE (VOTRE PC) ---
-                    // On cherche l'IP de la passerelle par défaut du conteneur
-                    def hostIp = sh(script: "ip route show | grep default | awk '{print \$3}'", returnStdout: true).trim()
-                    if (!hostIp) hostIp = "172.17.0.1" // Fallback standard
+                    echo "=== Analyse de l'environnement réseau ==="
+                    sh 'ip route show || echo "Route non disponible"'
                     
-                    env.DOCKER_CMD = "docker -H tcp://${hostIp}:2375"
-                    echo "--- Moteur Docker détecté sur l'IP : ${hostIp} ---"
-                    echo "--- Commande utilisée : ${env.DOCKER_CMD} ---"
+                    // --- DETECTION DYNAMIQUE DE L'IP DE L'HOTE (VOTRE PC) ---
+                    // Méthode 1 : Route par défaut (La plus fiable en container)
+                    def hostIp = sh(script: "ip route show | grep default | awk '{print \$3}'", returnStdout: true).trim()
+                    
+                    // Méthode 2 : Fallback sur host.docker.internal (Standard Docker Desktop)
+                    if (!hostIp) {
+                        def canResolve = (sh(script: "getent hosts host.docker.internal", returnStatus: true) == 0)
+                        if (canResolve) hostIp = "host.docker.internal"
+                    }
+
+                    // Fallback ultime
+                    if (!hostIp) hostIp = "172.17.0.1"
+
+                    env.DOCKER_HOST_IP = hostIp
+                    env.DOCKER_CMD     = "docker -H tcp://${hostIp}:2375"
+                    
+                    echo "--- Moteur Docker détecté sur : ${env.DOCKER_HOST_IP} ---"
+                    echo "--- Test de connexion (Docker Version) ---"
+                    sh "${env.DOCKER_CMD} version || echo 'ALERTE : Connexion refusée sur port 2375. Vérifiez les réglages Docker Desktop !'"
 
                     def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: "feature_default"
                     def cleanBranch = rawBranch.split('/')[-1]
@@ -48,7 +62,7 @@ pipeline {
 
         stage('2. Vérification du Projet') {
             parallel {
-                stage('Fichiers') {
+                stage('Structure') {
                     steps {
                         sh 'find . -maxdepth 2 -not -path "*/.*"'
                     }
@@ -64,21 +78,21 @@ pipeline {
             }
         }
 
-        stage('3. Lancement des Services') {
+        stage('3. Lancement des Services Isolés') {
             steps {
                 script {
                     def slug = env.BRANCH_SLUG
-                    sh "${DOCKER_CMD} network create fstm_network || true"
-                    sh "${DOCKER_CMD} run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
-                    sh "${DOCKER_CMD} run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
+                    sh "${env.DOCKER_CMD} network create fstm_network || true"
+                    sh "${env.DOCKER_CMD} run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
+                    sh "${env.DOCKER_CMD} run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
                     
-                    echo "Services isolés lancés sur le réseau interne."
+                    echo "Services isolés lancés sur ${env.DOCKER_HOST_IP}"
                     sleep 15
                 }
             }
         }
 
-        stage('4. Vérification de Santé') {
+        stage('4. Santé des Services') {
             parallel {
                 stage('Qdrant Health') {
                     steps {
@@ -86,7 +100,7 @@ pipeline {
                             def slug = env.BRANCH_SLUG
                             def ok = (sh(script: "curl -sf --max-time 10 ${env.QDRANT_URL}", returnStatus: true) == 0)
                             if (!ok) {
-                                sh "${DOCKER_CMD} restart qdrant_${slug} || true"
+                                sh "${env.DOCKER_CMD} restart qdrant_${slug} || true"
                                 sleep 10
                                 ok = (sh(script: "curl -sf --max-time 10 ${env.QDRANT_URL}", returnStatus: true) == 0)
                             }
@@ -100,7 +114,7 @@ pipeline {
                             def slug = env.BRANCH_SLUG
                             def ok = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             if (!ok) {
-                                sh "${DOCKER_CMD} restart n8n_${slug} || true"
+                                sh "${env.DOCKER_CMD} restart n8n_${slug} || true"
                                 sleep 10
                                 ok = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             }
