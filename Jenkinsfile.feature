@@ -18,31 +18,28 @@ pipeline {
 
     stages {
 
-        stage('1. Diagnostic & Détection Réseau') {
+        stage('1. Détection Réseau ( host.docker.internal )') {
             steps {
                 script {
-                    echo "=== Analyse de l'environnement réseau ==="
-                    sh 'ip route show || echo "Route non disponible"'
+                    echo "=== Tentative de connexion via l'adresse standard Docker Windows ==="
                     
-                    // --- DETECTION DYNAMIQUE DE L'IP DE L'HOTE (VOTRE PC) ---
-                    // Méthode 1 : Route par défaut (La plus fiable en container)
-                    def hostIp = sh(script: "ip route show | grep default | awk '{print \$3}'", returnStdout: true).trim()
+                    // On privilégie l'adresse universelle de Docker Desktop
+                    def host = "host.docker.internal"
                     
-                    // Méthode 2 : Fallback sur host.docker.internal (Standard Docker Desktop)
-                    if (!hostIp) {
-                        def canResolve = (sh(script: "getent hosts host.docker.internal", returnStatus: true) == 0)
-                        if (canResolve) hostIp = "host.docker.internal"
+                    // Test de résolution
+                    def canResolve = (sh(script: "getent hosts ${host}", returnStatus: true) == 0)
+                    
+                    if (!canResolve) {
+                        echo "ALERTE : host.docker.internal non résolu. Tentative de détection IP..."
+                        host = sh(script: "ip route show | grep default | awk '{print \$3}'", returnStdout: true).trim()
+                        if (!host) host = "172.17.0.1"
                     }
 
-                    // Fallback ultime
-                    if (!hostIp) hostIp = "172.17.0.1"
-
-                    env.DOCKER_HOST_IP = hostIp
-                    env.DOCKER_CMD     = "docker -H tcp://${hostIp}:2375"
+                    env.DOCKER_CMD = "docker -H tcp://${host}:2375"
+                    echo "--- Pilotage Docker via : ${host} ---"
                     
-                    echo "--- Moteur Docker détecté sur : ${env.DOCKER_HOST_IP} ---"
-                    echo "--- Test de connexion (Docker Version) ---"
-                    sh "${env.DOCKER_CMD} version || echo 'ALERTE : Connexion refusée sur port 2375. Vérifiez les réglages Docker Desktop !'"
+                    // Test de connexion réel
+                    sh "${env.DOCKER_CMD} version || echo 'ERREUR : Portail 2375 refusé. Assurez-vous que Docker Desktop expose bien le démon !'"
 
                     def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: "feature_default"
                     def cleanBranch = rawBranch.split('/')[-1]
@@ -52,7 +49,7 @@ pipeline {
                     env.N8N_URL    = "http://n8n_${env.BRANCH_SLUG}:5678"
 
                     if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
-                        error "Ce pipeline est réservé aux branches feature/."
+                        error "Pipeline réservé aux branches feature/."
                     }
                     
                     checkout scm
@@ -62,12 +59,12 @@ pipeline {
 
         stage('2. Vérification du Projet') {
             parallel {
-                stage('Structure') {
+                stage('Validation Fichiers') {
                     steps {
                         sh 'find . -maxdepth 2 -not -path "*/.*"'
                     }
                 }
-                stage('Syntaxe') {
+                stage('Syntaxe Python/JSON') {
                     steps {
                         sh '''
                         find . -name "*.py" ! -path "*/venv/*" ! -path "*/.*" -exec python3 -m py_compile {} +
@@ -86,15 +83,15 @@ pipeline {
                     sh "${env.DOCKER_CMD} run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
                     sh "${env.DOCKER_CMD} run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
                     
-                    echo "Services isolés lancés sur ${env.DOCKER_HOST_IP}"
+                    echo "Services isolés lancés."
                     sleep 15
                 }
             }
         }
 
-        stage('4. Santé des Services') {
+        stage('4. Vérification de Santé') {
             parallel {
-                stage('Qdrant Health') {
+                stage('Qdrant') {
                     steps {
                         script {
                             def slug = env.BRANCH_SLUG
@@ -108,7 +105,7 @@ pipeline {
                         }
                     }
                 }
-                stage('n8n Health') {
+                stage('n8n') {
                     steps {
                         script {
                             def slug = env.BRANCH_SLUG
@@ -125,7 +122,7 @@ pipeline {
             }
         }
 
-        stage('5. Installation & Indexation') {
+        stage('5. Installation & Indexation IA') {
             steps {
                 sh '''
                 [ ! -d "$VENV" ] && python3 -m venv "$VENV"
