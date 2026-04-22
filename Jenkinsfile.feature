@@ -26,9 +26,9 @@ pipeline {
                     def cleanBranch = rawBranch.split('/')[-1]
                     env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
 
-                    // URLs internes pour les tests de santé
-                    env.QDRANT_URL = "http://qdrant_${env.BRANCH_SLUG}:6333"
-                    env.N8N_URL    = "http://n8n_${env.BRANCH_SLUG}:5678"
+                    // URLs directes via l'hôte pour garantir la connexion sous Windows
+                    env.QDRANT_URL = "http://host_machine:${env.QDRANT_PORT}"
+                    env.N8N_URL    = "http://host_machine:${env.N8N_PORT}"
 
                     if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
                         error "Pipeline de branche feature détecté sur le main. Arrêt par sécurité."
