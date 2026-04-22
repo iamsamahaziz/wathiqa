@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         // L'isolation est basée sur le numéro de build pour éviter les conflits de ports
+        BOTPRESS_URL = 'https://cdn.botpress.cloud'
         QDRANT_PORT  = "${10000 + env.BUILD_NUMBER.toInteger()}"
         N8N_PORT     = "${20000 + env.BUILD_NUMBER.toInteger()}"
         VENV         = "${WORKSPACE}/venv"
@@ -76,6 +77,15 @@ pipeline {
                         script {
                             def ok = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             if (!ok) error "n8n Isolé (${env.BRANCH_SLUG}) injoignable."
+                        }
+                    }
+                }
+                stage('Botpress Cloud Health') {
+                    steps {
+                        script {
+                            echo "Inspection de la disponibilité de Botpress Cloud..."
+                            def botpressOK = (sh(script: "curl -sf --max-time 10 ${env.BOTPRESS_URL}", returnStatus: true) == 0)
+                            echo "Botpress Cloud : ${botpressOK ? 'OPÉRATIONNEL' : 'AVERTISSEMENT (Connexion difficile)'}"
                         }
                     }
                 }
