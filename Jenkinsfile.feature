@@ -95,7 +95,7 @@ pipeline {
                         --name qdrant_${slug} \
                         --network fstm_network \
                         -p ${QDRANT_PORT}:6333 \
-                        qdrant/qdrant || echo "Qdrant deja demarre"
+                        qdrant/qdrant
                     """
 
                     sh """
@@ -103,7 +103,7 @@ pipeline {
                         --name n8n_${slug} \
                         --network fstm_network \
                         -p ${N8N_PORT}:5678 \
-                        n8nio/n8n || echo "n8n deja demarre"
+                        n8nio/n8n
                     """
 
                     sleep 15
