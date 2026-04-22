@@ -8,6 +8,7 @@ pipeline {
     }
 
     environment {
+        DOCKER_HOST  = "tcp://host.docker.internal:2375"
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
         VENV         = "${WORKSPACE}/venv"
         PYTHON       = "${WORKSPACE}/venv/bin/python"
