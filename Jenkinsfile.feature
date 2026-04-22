@@ -26,9 +26,9 @@ pipeline {
                     def cleanBranch = rawBranch.split('/')[-1]
                     env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
 
-                    // URLs directes via l'hôte pour garantir la connexion sous Windows
-                    env.QDRANT_URL = "http://host_machine:${env.QDRANT_PORT}"
-                    env.N8N_URL    = "http://host_machine:${env.N8N_PORT}"
+                    // URLs internes ultra-stables (une fois Jenkins branché au réseau)
+                    env.QDRANT_URL = "http://qdrant_${env.BRANCH_SLUG}:6333"
+                    env.N8N_URL    = "http://n8n_${env.BRANCH_SLUG}:5678"
 
                     if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
                         error "Pipeline de branche feature détecté sur le main. Arrêt par sécurité."
@@ -51,6 +51,8 @@ pipeline {
 
                     // Création du réseau et lancement
                     sh "docker network create fstm_network || true"
+                    // On "branche" dynamiquement Jenkins au réseau Wathiqa pour voir les containers
+                    sh "docker network connect fstm_network fstm_jenkins || true"
                     sh "docker run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
                     sh "docker run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
                     
