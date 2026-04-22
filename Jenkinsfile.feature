@@ -9,7 +9,7 @@ pipeline {
 
     environment {
         // Commande Docker forcée par le réseau TCP pour Windows
-        DOCKER_CMD   = "docker -H tcp://host.docker.internal:2375"
+        DOCKER_CMD   = "docker -H tcp://172.17.0.1:2375"
         BOTPRESS_URL = 'https://cdn.botpress.cloud'
         VENV         = "${WORKSPACE}/venv"
         PYTHON       = "${WORKSPACE}/venv/bin/python"
