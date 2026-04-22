@@ -12,10 +12,9 @@ pipeline {
         VENV         = "${WORKSPACE}/venv"
         PYTHON       = "${WORKSPACE}/venv/bin/python"
         PIP          = "${WORKSPACE}/venv/bin/pip"
+        // Les ports sont conservés uniquement pour l'accès externe par l'utilisateur
         QDRANT_PORT  = "${10000 + env.BUILD_NUMBER.toInteger()}"
         N8N_PORT     = "${20000 + env.BUILD_NUMBER.toInteger()}"
-        QDRANT_URL   = "http://localhost:${10000 + env.BUILD_NUMBER.toInteger()}"
-        N8N_URL      = "http://localhost:${20000 + env.BUILD_NUMBER.toInteger()}"
     }
 
     stages {
@@ -29,12 +28,17 @@ pipeline {
                     def cleanBranch = rawBranch.split('/')[-1]
                     env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
 
+                    // Configuration du DNS Interne (Docker à Docker)
+                    env.QDRANT_URL = "http://qdrant_${env.BRANCH_SLUG}:6333"
+                    env.N8N_URL    = "http://n8n_${env.BRANCH_SLUG}:5678"
+
                     if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
                         error "Ce pipeline est pour les branches feature/ uniquement. Faites : git checkout -b feature/votre-nom"
                     }
                     checkout scm
                     echo "Branche Detectee : ${rawBranch}"
                     echo "Slug Utilisé     : ${env.BRANCH_SLUG}"
+                    echo "Internal DNS     : ${env.QDRANT_URL}"
                     echo "Developpeur      : ${env.GIT_AUTHOR_NAME ?: 'inconnu'}"
                     echo "Commit           : ${env.GIT_COMMIT?.take(8)}"
                 }
@@ -210,8 +214,12 @@ print(len(cols))
                 script {
                     def slug = env.BRANCH_SLUG
                     echo "Projet Wathiqa pret sur la branche ${env.BRANCH_SLUG}"
-                    echo "Qdrant  : http://localhost:${QDRANT_PORT}"
-                    echo "n8n     : http://localhost:${N8N_PORT}"
+                    echo "--- Accès EXTERNE (Votre Navigateur) ---"
+                    echo "Qdrant  : http://localhost:${env.QDRANT_PORT}"
+                    echo "n8n     : http://localhost:${env.N8N_PORT}"
+                    echo "--- Accès INTERNE (Jenkins/DNS) ---"
+                    echo "Qdrant  : ${env.QDRANT_URL}"
+                    echo "n8n     : ${env.N8N_URL}"
                     echo "Botpress: ${BOTPRESS_URL}"
                     echo "Conteneurs : qdrant_${slug} / n8n_${slug}"
                 }
