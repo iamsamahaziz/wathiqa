@@ -172,20 +172,23 @@ print('OK:', '$f')
         }
 
         stage('5. Indexation IA & RAG') {
-            steps {
-                sh '''
-                [ ! -d "$VENV" ] && python3 -m venv "$VENV"
-                "$PIP" install -r requirements.txt --quiet
-                '''
-                withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
-                    sh """
-                    export MISTRAL_KEY=\$MISTRAL_KEY
-                    export QDRANT_URL=${env.QDRANT_URL}
-                    "\$PYTHON" load.py
-                    """
-                }
-            }
+    options { timeout(time: 15, unit: 'MINUTES') }
+    steps {
+        sh '''
+        [ ! -d "$VENV" ] && python3 -m venv "$VENV"
+        "$PIP" install --upgrade pip --quiet
+        "$PIP" install -r requirements.txt --quiet --cache-dir "$WORKSPACE/.pip_cache"
+        '''
+        withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
+            sh """
+            export MISTRAL_KEY=\$MISTRAL_KEY
+            export QDRANT_URL=${env.QDRANT_URL}
+            "\$PYTHON" load.py
+            """
         }
+    }
+}
+
     }
 
     post {
