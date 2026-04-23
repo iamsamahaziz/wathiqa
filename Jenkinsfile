@@ -25,39 +25,70 @@ pipeline {
             }
         }
 
-        stage('2. Vérification Globale') {
-            parallel {
-                stage('Inventaire complet') {
-                    steps {
-                        sh '''
-                        echo "--- Structure du dépôt ---"
-                        find . -maxdepth 2 -not -path '*/.*'
-                        echo "--- Dossier Documents ---"
-                        [ -d "documents" ] && ls -1 documents | wc -l | xargs echo "Nombre de documents :" || echo "Dossier documents MANQUANT"
-                        '''
-                    }
-                }
-                stage('Contrôle Qualité Universel') {
-                    steps {
-                        sh '''
-                        echo "=== 1. Scan Python (Syntaxe) ==="
-                        find . -name "*.py" ! -path "*/venv/*" ! -path "*/.*" -exec python3 -m py_compile {} +
-                        
-                        echo "=== 2. Validation JSON (Intégrité) ==="
-                        find . -name "*.json" ! -path "*/.*" -exec python3 -c "import json; json.load(open('{}'))" \\; -print
-                        
-                        echo "=== 3. Validation YAML (Structure) ==="
-                        find . -name "*.yml" -o -name "*.yaml" ! -path "*/.*" -exec echo "Validating {}" \\;
-                        
-                        echo "=== 4. Audit HTML (Interface) ==="
-                        find . -name "*.html" ! -path "*/venv/*" ! -path "*/.*" -exec grep -qE "<html>|<head>|<body>" {} \\; -print || echo "Attention : fichiers HTML mal formés."
+        stage('2. Contrôle Qualité') {
+            steps {
+                sh '''
+                python3 -c "
+import os, json, py_compile
+from html.parser import HTMLParser
 
-                        echo "=== 5. Inspection des Datas ==="
-                        [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK (non vide)" || echo "Wathiqa.bpz : ATTENTION (vide ou manquant)"
-                        [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prêts :" || echo "Alerte : pas de documents !"
-                        '''
-                    }
-                }
+errors = []
+
+class HTMLCheck(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.stack = []
+        self.void = ['br','hr','img','input','meta','link','area','base','col','embed','param','source','track','wbr']
+    def handle_starttag(self, tag, attrs):
+        if tag not in self.void:
+            self.stack.append(tag)
+    def handle_endtag(self, tag):
+        if self.stack and self.stack[-1] == tag:
+            self.stack.pop()
+        else:
+            raise Exception(f'Balise mal fermee: </{tag}>')
+
+for root, dirs, files in os.walk('.'):
+    dirs[:] = [d for d in dirs if d not in ['venv', '.git']]
+    for f in files:
+        path = os.path.join(root, f)
+
+        if f.endswith('.py'):
+            try: py_compile.compile(path, doraise=True)
+            except py_compile.PyCompileError as e: errors.append(f'PYTHON {path}: {e}')
+
+        elif f.endswith('.json'):
+            try: json.load(open(path))
+            except Exception as e: errors.append(f'JSON {path}: {e}')
+
+        elif f.endswith(('.yml', '.yaml')):
+            try:
+                import re
+                content = open(path).read()
+                for i, line in enumerate(content.splitlines(), 1):
+                    if line and not line.startswith(' ') and not line.startswith('#'):
+                        if ':' not in line and not line.startswith('-'):
+                            errors.append(f'YAML {path} ligne {i}: syntaxe invalide')
+            except Exception as e: errors.append(f'YAML {path}: {e}')
+
+        elif f.endswith('.html'):
+            try:
+                p = HTMLCheck()
+                p.feed(open(path).read())
+                if p.stack:
+                    errors.append(f'HTML {path}: balises non fermees {p.stack}')
+            except Exception as e: errors.append(f'HTML {path}: {e}')
+
+if errors:
+    print('ERREURS DETECTEES:')
+    [print(' -', e) for e in errors]
+    exit(1)
+else:
+    print('Tous les fichiers sont valides !')
+"
+                [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
+                [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
+                '''
             }
         }
 
@@ -103,14 +134,12 @@ pipeline {
                             for (int i = 1; i <= 3; i++) {
                                 botpressOK = (sh(script: "curl -sf --max-time 10 ${BOTPRESS_URL}", returnStatus: true) == 0)
                                 if (botpressOK) break
-                                echo "Botpress KO (tentative ${i}/3) — nouvel essai dans 5s..."
                                 sleep 5
                             }
                             echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT (non bloquant)'}"
                         }
                     }
                 }
-
             }
         }
 
@@ -121,7 +150,7 @@ pipeline {
                 [ ! -d "$VENV" ] && python3 -m venv "$VENV"
                 "$PIP" install --upgrade pip --quiet
                 "$PIP" install -r requirements.txt --quiet
-                "$PIP" check && echo "Aucun conflit de dépendances."
+                "$PIP" check && echo "Aucun conflit de dependances."
                 '''
             }
         }
