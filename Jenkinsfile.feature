@@ -85,23 +85,32 @@ print('OK:', '$f')
 
 
         stage('3. Déploiement des Services Isolés') {
-            steps {
-                script {
-                    def slug = env.BRANCH_SLUG
-                    echo "--- Déploiement des services pour : ${slug} ---"
+    steps {
+        script {
+            def slug = env.BRANCH_SLUG
 
-                    sh "docker stop qdrant_${slug} n8n_${slug} || true"
-                    sh "docker rm   qdrant_${slug} n8n_${slug} || true"
+            sh '''
+            # Installation Docker si absent
+            command -v docker || apt-get install -y docker.io
 
-                    sh "docker network create fstm_network || true"
-                    sh "docker network connect fstm_network fstm_jenkins || true"
-                    sh "docker run -d --name qdrant_${slug} --network fstm_network -p ${env.QDRANT_PORT}:6333 qdrant/qdrant"
-                    sh "docker run -d --name n8n_${slug} --network fstm_network -p ${env.N8N_PORT}:5678 n8nio/n8n"
+            # Nettoyage anciens conteneurs
+            docker stop qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
+            docker rm   qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
 
-                    sleep 25
-                }
-            }
+            # Réseau
+            docker network create fstm_network || true
+            docker network connect fstm_network fstm_jenkins || true
+
+            # Lancement des services (docker pull automatique si image absente)
+            docker run -d --name qdrant_''' + slug + ''' --network fstm_network -p $QDRANT_PORT:6333 qdrant/qdrant
+            docker run -d --name n8n_''' + slug + '''    --network fstm_network -p $N8N_PORT:5678    n8nio/n8n
+
+            sleep 25
+            '''
         }
+    }
+}
+
 
         stage('4. Vérification de Santé') {
             parallel {
