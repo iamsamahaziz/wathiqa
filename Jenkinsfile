@@ -26,19 +26,28 @@ pipeline {
         }
 
         stage('2. Contrôle Qualité') {
-            steps {
-                sh '''
-                python3 -c "
-import os, json, py_compile
+    steps {
+        sh '''
+        echo "=== Python ==="
+        find . -name "*.py" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m py_compile {} \; && echo "Python : OK"
+
+        echo "=== JSON ==="
+        find . -name "*.json" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m json.tool {} > /dev/null \; && echo "JSON : OK"
+
+        echo "=== YAML ==="
+        find . \( -name "*.yml" -o -name "*.yaml" \) ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -c "import sys,yaml; yaml.safe_load(open(sys.argv[1]))" {} \; && echo "YAML : OK"
+
+        echo "=== HTML ==="
+        find . -name "*.html" ! -path "*/venv/*" ! -path "*/.git/*" | while read f; do
+            python3 -c "
+import sys
 from html.parser import HTMLParser
 
-errors = []
-
-class HTMLCheck(HTMLParser):
+class Check(HTMLParser):
     def __init__(self):
         super().__init__()
         self.stack = []
-        self.void = ['br','hr','img','input','meta','link','area','base','col','embed','param','source','track','wbr']
+        self.void = ['br','hr','img','input','meta','link','base','col','embed','param','source','track','wbr']
     def handle_starttag(self, tag, attrs):
         if tag not in self.void:
             self.stack.append(tag)
@@ -46,51 +55,25 @@ class HTMLCheck(HTMLParser):
         if self.stack and self.stack[-1] == tag:
             self.stack.pop()
         else:
-            raise Exception(f'Balise mal fermee: </{tag}>')
+            print('ERREUR: balise mal fermee </' + tag + '> dans $f')
+            sys.exit(1)
 
-for root, dirs, files in os.walk('.'):
-    dirs[:] = [d for d in dirs if d not in ['venv', '.git']]
-    for f in files:
-        path = os.path.join(root, f)
+p = Check()
+p.feed(open('$f').read())
+if p.stack:
+    print('ERREUR: balises non fermees', p.stack, 'dans $f')
+    sys.exit(1)
+print('OK:', '$f')
+" || exit 1
+        done && echo "HTML : OK"
 
-        if f.endswith('.py'):
-            try: py_compile.compile(path, doraise=True)
-            except py_compile.PyCompileError as e: errors.append(f'PYTHON {path}: {e}')
+        echo "=== Fichiers Data ==="
+        [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
+        [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
+        '''
+    }
+}
 
-        elif f.endswith('.json'):
-            try: json.load(open(path))
-            except Exception as e: errors.append(f'JSON {path}: {e}')
-
-        elif f.endswith(('.yml', '.yaml')):
-            try:
-                import re
-                content = open(path).read()
-                for i, line in enumerate(content.splitlines(), 1):
-                    if line and not line.startswith(' ') and not line.startswith('#'):
-                        if ':' not in line and not line.startswith('-'):
-                            errors.append(f'YAML {path} ligne {i}: syntaxe invalide')
-            except Exception as e: errors.append(f'YAML {path}: {e}')
-
-        elif f.endswith('.html'):
-            try:
-                p = HTMLCheck()
-                p.feed(open(path).read())
-                if p.stack:
-                    errors.append(f'HTML {path}: balises non fermees {p.stack}')
-            except Exception as e: errors.append(f'HTML {path}: {e}')
-
-if errors:
-    print('ERREURS DETECTEES:')
-    [print(' -', e) for e in errors]
-    exit(1)
-else:
-    print('Tous les fichiers sont valides !')
-"
-                [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
-                [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
-                '''
-            }
-        }
 
         stage('3. Vérification des Services') {
             parallel {
