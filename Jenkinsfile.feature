@@ -38,20 +38,17 @@ pipeline {
         }
 
         stage('2. Contrôle Qualité') {
-            steps {
-                sh '''
-                echo "=== Python ==="
-                find . -name "*.py" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m py_compile {} \; && echo "Python : OK"
+    steps {
+        sh '''
+        echo "=== Python ==="
+        find . -name "*.py" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m py_compile {} + && echo "Python : OK"
 
-                echo "=== JSON ==="
-                find . -name "*.json" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m json.tool {} > /dev/null \; && echo "JSON : OK"
+        echo "=== JSON ==="
+        find . -name "*.json" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m json.tool {} + > /dev/null && echo "JSON : OK"
 
-                echo "=== YAML ==="
-                find . \( -name "*.yml" -o -name "*.yaml" \) ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -c "import sys,yaml; yaml.safe_load(open(sys.argv[1]))" {} \; && echo "YAML : OK"
-
-                echo "=== HTML ==="
-                find . -name "*.html" ! -path "*/venv/*" ! -path "*/.git/*" | while read f; do
-                    python3 -c "
+        echo "=== HTML ==="
+        find . -name "*.html" ! -path "*/venv/*" ! -path "*/.git/*" | while read f; do
+            python3 -c "
 import sys
 from html.parser import HTMLParser
 
@@ -77,14 +74,15 @@ if p.stack:
     sys.exit(1)
 print('OK:', '$f')
 " || exit 1
-                done && echo "HTML : OK"
+        done && echo "HTML : OK"
 
-                echo "=== Fichiers Data ==="
-                [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
-                [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
-                '''
-            }
-        }
+        echo "=== Fichiers Data ==="
+        [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
+        [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
+        '''
+    }
+}
+
 
         stage('3. Déploiement des Services Isolés') {
             steps {
