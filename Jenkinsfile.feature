@@ -31,7 +31,7 @@ pipeline {
                 script {
 
                     // ✅ Validation clé Mistral
-                    if (!params.MISTRAL_KEY?.trim()) {
+                    if (!params.MISTRAL_KEY) {
                         error "❌ Clé Mistral non fournie. Relancez et entrez votre clé API."
                     }
 
