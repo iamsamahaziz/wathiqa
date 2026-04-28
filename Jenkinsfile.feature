@@ -88,7 +88,8 @@ if p.stack:
     sys.exit(1)
 print('OK:', '$f')
 " || exit 1
-                done && echo "HTML : OK"
+                done
+                echo "HTML : OK"
 
                 echo "=== Fichiers Data ==="
                 [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
@@ -118,7 +119,7 @@ print('OK:', '$f')
                     docker run -d --name qdrant_''' + slug + ''' --network fstm_network -p $QDRANT_PORT:6333 qdrant/qdrant
                     docker run -d --name n8n_''' + slug + '''    --network fstm_network -p $N8N_PORT:5678    n8nio/n8n
 
-                    sleep 25
+                    sleep 5
                     '''
                 }
             }

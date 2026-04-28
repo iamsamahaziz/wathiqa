@@ -171,6 +171,6 @@ for i, doc in enumerate(docs):
     except Exception as e:
         print(f"❌ Erreur Qdrant: {e}")
 
-    time.sleep(1.2)
+    time.sleep(2.0)
 
 print("🎉 Pipeline terminé avec succès !")
