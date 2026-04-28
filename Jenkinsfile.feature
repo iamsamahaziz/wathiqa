@@ -75,6 +75,8 @@ class Check(HTMLParser):
         if tag not in self.void:
             self.stack.append(tag)
     def handle_endtag(self, tag):
+        if tag in self.void:
+            return
         if self.stack and self.stack[-1] == tag:
             self.stack.pop()
         else:
