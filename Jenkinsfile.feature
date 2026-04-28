@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        password(
+            name: 'MISTRAL_KEY',
+            defaultValue: '',
+            description: 'Entrez votre clé API Mistral (ex: sk-...)'
+        )
+    }
+
     options {
         timeout(time: 20, unit: 'MINUTES')
         timestamps()
@@ -21,6 +29,12 @@ pipeline {
         stage('1. Préparation de l\'Environnement') {
             steps {
                 script {
+
+                    // ✅ Validation clé Mistral
+                    if (!params.MISTRAL_KEY?.trim()) {
+                        error "❌ Clé Mistral non fournie. Relancez et entrez votre clé API."
+                    }
+
                     def rawBranch = env.BRANCH_NAME ?: env.GIT_BRANCH ?: "feature_iso"
                     def cleanBranch = rawBranch.split('/')[-1]
                     env.BRANCH_SLUG = cleanBranch.replaceAll('[^a-zA-Z0-9]', '_').toLowerCase()
@@ -38,17 +52,17 @@ pipeline {
         }
 
         stage('2. Contrôle Qualité') {
-    steps {
-        sh '''
-        echo "=== Python ==="
-        find . -name "*.py" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m py_compile {} + && echo "Python : OK"
+            steps {
+                sh '''
+                echo "=== Python ==="
+                find . -name "*.py" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m py_compile {} + && echo "Python : OK"
 
-        echo "=== JSON ==="
-        find . -name "*.json" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m json.tool {} + > /dev/null && echo "JSON : OK"
+                echo "=== JSON ==="
+                find . -name "*.json" ! -path "*/venv/*" ! -path "*/.git/*" -exec python3 -m json.tool {} + > /dev/null && echo "JSON : OK"
 
-        echo "=== HTML ==="
-        find . -name "*.html" ! -path "*/venv/*" ! -path "*/.git/*" | while read f; do
-            python3 -c "
+                echo "=== HTML ==="
+                find . -name "*.html" ! -path "*/venv/*" ! -path "*/.git/*" | while read f; do
+                    python3 -c "
 import sys
 from html.parser import HTMLParser
 
@@ -74,43 +88,41 @@ if p.stack:
     sys.exit(1)
 print('OK:', '$f')
 " || exit 1
-        done && echo "HTML : OK"
+                done && echo "HTML : OK"
 
-        echo "=== Fichiers Data ==="
-        [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
-        [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
-        '''
-    }
-}
-
+                echo "=== Fichiers Data ==="
+                [ -s "Wathiqa.bpz" ] && echo "Wathiqa.bpz : OK" || echo "Wathiqa.bpz : ATTENTION"
+                [ -d "documents" ] && find documents -type f -not -empty | wc -l | xargs echo "Documents prets :" || echo "Alerte : pas de documents !"
+                '''
+            }
+        }
 
         stage('3. Déploiement des Services Isolés') {
-    steps {
-        script {
-            def slug = env.BRANCH_SLUG
+            steps {
+                script {
+                    def slug = env.BRANCH_SLUG
 
-            sh '''
-            # Installation Docker si absent
-            command -v docker || apt-get install -y docker.io
+                    sh '''
+                    # Installation Docker si absent
+                    command -v docker || apt-get install -y docker.io
 
-            # Nettoyage anciens conteneurs
-            docker stop qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
-            docker rm   qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
+                    # Nettoyage anciens conteneurs
+                    docker stop qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
+                    docker rm   qdrant_''' + slug + ''' n8n_''' + slug + ''' || true
 
-            # Réseau
-            docker network create fstm_network || true
-            docker network connect fstm_network fstm_jenkins || true
+                    # Réseau
+                    docker network create fstm_network || true
+                    docker network connect fstm_network fstm_jenkins || true
 
-            # Lancement des services (docker pull automatique si image absente)
-            docker run -d --name qdrant_''' + slug + ''' --network fstm_network -p $QDRANT_PORT:6333 qdrant/qdrant
-            docker run -d --name n8n_''' + slug + '''    --network fstm_network -p $N8N_PORT:5678    n8nio/n8n
+                    # Lancement des services
+                    docker run -d --name qdrant_''' + slug + ''' --network fstm_network -p $QDRANT_PORT:6333 qdrant/qdrant
+                    docker run -d --name n8n_''' + slug + '''    --network fstm_network -p $N8N_PORT:5678    n8nio/n8n
 
-            sleep 25
-            '''
+                    sleep 25
+                    '''
+                }
+            }
         }
-    }
-}
-
 
         stage('4. Vérification de Santé') {
             parallel {
@@ -172,22 +184,20 @@ print('OK:', '$f')
         }
 
         stage('5. Indexation IA & RAG') {
-    options { timeout(time: 15, unit: 'MINUTES') }
-    steps {
-        sh '''
-        [ ! -d "$VENV" ] && python3 -m venv "$VENV"
-        "$PIP" install --upgrade pip --quiet
-        "$PIP" install -r requirements.txt --quiet --cache-dir "$WORKSPACE/.pip_cache"
-        '''
-        withCredentials([string(credentialsId: 'MISTRAL_KEY', variable: 'MISTRAL_KEY')]) {
-            sh """
-            export MISTRAL_KEY=\$MISTRAL_KEY
-            export QDRANT_URL=${env.QDRANT_URL}
-            "\$PYTHON" load.py
-            """
+            options { timeout(time: 15, unit: 'MINUTES') }
+            steps {
+                sh '''
+                [ ! -d "$VENV" ] && python3 -m venv "$VENV"
+                "$PIP" install --upgrade pip --quiet
+                "$PIP" install -r requirements.txt --quiet --cache-dir "$WORKSPACE/.pip_cache"
+                '''
+                sh """
+                export MISTRAL_KEY=${params.MISTRAL_KEY}
+                export QDRANT_URL=${env.QDRANT_URL}
+                "\$PYTHON" load.py
+                """
+            }
         }
-    }
-}
 
     }
 
