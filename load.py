@@ -3,25 +3,50 @@ import time
 import os
 from retry import retry
 
-# 🔐 clé depuis variable d'environnement (MISTRAL_KEY ou MISTRAL_API_KEY)
+# 🔐 clé depuis variable d'environnement
 MISTRAL_KEY = os.getenv("MISTRAL_KEY") or os.getenv("MISTRAL_API_KEY")
 
-# ✅ IMPORTANT : accessible depuis Jenkins Docker
+# 🌐 Qdrant (accessible depuis Jenkins Docker)
 QDRANT_URL = os.getenv("QDRANT_URL", "http://host.docker.internal:6333")
 
 DOCS_DIR = "documents"
 
+
+# =========================
+# 🔐 HEALTH CHECK MISTRAL
+# =========================
+def check_mistral_key():
+    if not MISTRAL_KEY:
+        raise ValueError("❌ MISTRAL_KEY est manquante dans les variables d'environnement")
+
+    print("🔐 Vérification de la clé Mistral...")
+
+    resp = requests.get(
+        "https://api.mistral.ai/v1/models",
+        headers={"Authorization": f"Bearer {MISTRAL_KEY}"}
+    )
+
+    if resp.status_code == 401:
+        raise ValueError("❌ Clé Mistral invalide (401 Unauthorized)")
+
+    if resp.status_code != 200:
+        raise ValueError(f"❌ Erreur API Mistral: {resp.text}")
+
+    print("✅ Clé Mistral valide")
+
+
+# =========================
+# 📂 LOAD DOCUMENTS
+# =========================
 def load_real_documents():
-    """
-    📂 Parcourt le dossier documents/ et lit tous les fichiers .txt
-    """
     documents_found = []
+
     if not os.path.exists(DOCS_DIR):
         print(f"❌ Erreur : Le dossier {DOCS_DIR} n'existe pas.")
         return []
-    
+
     files = [f for f in os.listdir(DOCS_DIR) if f.endswith(".txt")]
-    
+
     for filename in files:
         filepath = os.path.join(DOCS_DIR, filename)
         try:
@@ -34,71 +59,94 @@ def load_real_documents():
                     })
         except Exception as e:
             print(f"⚠️ Impossible de lire {filename}: {e}")
-            
+
     return documents_found
 
-# 1. Charger les vrais fichiers
-docs = load_real_documents()
-print(f"📚 {len(docs)} documents chargés depuis le dossier {DOCS_DIR}")
 
-# 2. S'assurer que la collection existe dans Qdrant
+# =========================
+# 🧠 QDRANT COLLECTION
+# =========================
 def ensure_collection():
     print(f"📡 Vérification de la collection 'AdminBot' sur {QDRANT_URL}...")
+
     try:
-        # On vérifie si elle existe
         check_resp = requests.get(f"{QDRANT_URL}/collections/AdminBot")
+
         if check_resp.status_code == 404:
-            print("📦 Collection 'AdminBot' manquante. Création en cours...")
+            print("📦 Création de la collection 'AdminBot'...")
+
             create_resp = requests.put(
                 f"{QDRANT_URL}/collections/AdminBot",
                 json={
                     "vectors": {
-                        "size": 1024,  # Taille pour mistral-embed
+                        "size": 1024,
                         "distance": "Cosine"
                     }
                 }
             )
-            if create_resp.status_code in [200, 201]:
-                print("✅ Collection 'AdminBot' créée avec succès !")
-            else:
-                print(f"❌ Erreur création collection: {create_resp.text}")
-        else:
-            print("✅ Collection 'AdminBot' prête.")
-    except Exception as e:
-        print(f"⚠️ Erreur lors de la vérification Qdrant: {e}")
 
+            if create_resp.status_code in [200, 201]:
+                print("✅ Collection créée")
+            else:
+                print(f"❌ Erreur création: {create_resp.text}")
+
+        else:
+            print("✅ Collection déjà existante")
+
+    except Exception as e:
+        print(f"⚠️ Erreur Qdrant: {e}")
+
+
+# =========================
+# 🚀 START PIPELINE
+# =========================
+
+# 🔐 IMPORTANT : health check AVANT tout
+check_mistral_key()
+
+# 📂 load docs
+docs = load_real_documents()
+print(f"📚 {len(docs)} documents chargés")
+
+# 🧠 Qdrant setup
 ensure_collection()
 
-# 3. Boucle de traitement et d'indexation
+
+# =========================
+# 🔁 EMBEDDING LOOP
+# =========================
 for i, doc in enumerate(docs):
 
-    print(f"📄 Traitement ({i+1}/{len(docs)}) : {doc['type']}...")
+    print(f"📄 Traitement ({i+1}/{len(docs)}) : {doc['type']}")
 
     @retry(tries=3, delay=2, backoff=2)
     def call_mistral(text):
-        # 🤖 Embeddings Mistral
         resp = requests.post(
             "https://api.mistral.ai/v1/embeddings",
             headers={"Authorization": f"Bearer {MISTRAL_KEY}"},
-            json={"model": "mistral-embed", "input": [text]}
+            json={
+                "model": "mistral-embed",
+                "input": [text]
+            }
         )
+
         if resp.status_code == 429:
             raise Exception("Rate limit exceeded")
+
         return resp
 
     try:
         resp = call_mistral(doc["content"])
     except Exception as e:
-        print(f"❌ Erreur Mistral sur {doc['type']} après plusieurs essais : {e}")
+        print(f"❌ Erreur Mistral sur {doc['type']} : {e}")
         continue
 
     if resp.status_code != 200:
-        print(f"❌ Erreur Mistral sur {doc['type']} : {resp.text}")
+        print(f"❌ Erreur Mistral API: {resp.text}")
         continue
 
     emb = resp.json()["data"][0]["embedding"]
 
-    # 📦 Envoi vers Qdrant
     try:
         qdrant_resp = requests.put(
             f"{QDRANT_URL}/collections/AdminBot/points",
@@ -118,12 +166,11 @@ for i, doc in enumerate(docs):
             print(f"❌ Qdrant error: {qdrant_resp.text}")
             continue
 
-        print(f"✅ {doc['type']} indexé dans Qdrant !")
+        print(f"✅ {doc['type']} indexé")
 
     except Exception as e:
-        print(f"❌ Erreur connexion Qdrant: {e}")
+        print(f"❌ Erreur Qdrant: {e}")
 
-    # Pause pour éviter de saturer l'API (Rate Limit)
     time.sleep(1.2)
 
-print("🎉 Pipeline d'indexation réelle terminé avec succès !")
+print("🎉 Pipeline terminé avec succès !")
