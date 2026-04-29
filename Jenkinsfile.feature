@@ -155,14 +155,20 @@ print('OK:', '$f')
                             def slug = env.BRANCH_SLUG
                             def n8nOK = false
 
-                            for (int i = 1; i <= 3; i++) {
-                                n8nOK = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
+                            echo "Attente du démarrage de n8n (service lourd)..."
+                            for (int i = 1; i <= 6; i++) { // Plus de tentatives
+                                n8nOK = (sh(script: "curl -sf --max-time 5 ${env.N8N_URL}/healthz || curl -sf --max-time 5 ${env.N8N_URL}", returnStatus: true) == 0)
                                 if (n8nOK) break
-                                echo "n8n KO (tentative ${i}/3)"
-                                sh "docker restart n8n_${slug} || true"
+                                echo "n8n non prêt (tentative ${i}/6) — attente 10s..."
                                 sleep 10
                             }
-                            if (!n8nOK) error "n8n injoignable apres 3 tentatives"
+                            if (!n8nOK) {
+                                echo "n8n semble bloqué, tentative de redémarrage final..."
+                                sh "docker restart n8n_${slug} || true"
+                                sleep 20
+                                n8nOK = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
+                            }
+                            if (!n8nOK) error "n8n injoignable après plusieurs tentatives"
                             echo "n8n : OK"
                         }
                     }
