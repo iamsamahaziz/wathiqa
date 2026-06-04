@@ -137,24 +137,24 @@ print('OK:', '$f')
                         # Nettoyage automatique des anciens conteneurs pour appliquer les nouveaux ports
 
                         # ── Qdrant Production ──
-                        if ! docker ps -a --format "{{.Names}}" | grep -q "^ia_qdrant$"; then
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^qdrant$"; then
                             echo "Déploiement initial de Qdrant..."
                             docker run -d \
-                                --name ia_qdrant \
+                                --name qdrant \
                                 --network ia_network \
                                 --network-alias qdrant \
                                 -p 6334:6333 \
                                 --restart unless-stopped \
                                 qdrant/qdrant:latest
-                        elif ! docker ps --format "{{.Names}}" | grep -q "^ia_qdrant$"; then
-                            echo "Démarrage de ia_qdrant arrêté..."
-                            docker start ia_qdrant
+                        elif ! docker ps --format "{{.Names}}" | grep -q "^qdrant$"; then
+                            echo "Démarrage de qdrant arrêté..."
+                            docker start qdrant
                         else
-                            echo "ia_qdrant est déjà en cours d'exécution."
+                            echo "qdrant est déjà en cours d'exécution."
                         fi
 
                         # ── n8n Production ──
-                        if ! docker ps -a --format "{{.Names}}" | grep -q "^ia_n8n$"; then
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^n8n$"; then
                             echo "Déploiement initial de n8n..."
                             docker run -d \
                                 --name ia_n8n \
@@ -163,11 +163,11 @@ print('OK:', '$f')
                                 -p 5679:5678 \
                                 --restart unless-stopped \
                                 n8nio/n8n:latest
-                        elif ! docker ps --format "{{.Names}}" | grep -q "^ia_n8n$"; then
-                            echo "Démarrage de ia_n8n arrêté..."
-                            docker start ia_n8n
+                        elif ! docker ps --format "{{.Names}}" | grep -q "^n8n$"; then
+                            echo "Démarrage de n8n arrêté..."
+                            docker start n8n
                         else
-                            echo "ia_n8n est déjà en cours d'exécution."
+                            echo "n8n est déjà en cours d'exécution."
                         fi
                         '''
                     } else {
