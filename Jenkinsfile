@@ -128,7 +128,7 @@ print('OK:', '$f')
 
                     # Réseau commun ia_network
                     docker network create ia_network 2>/dev/null || true
-                    docker network connect --alias jenkins ia_network fstm_jenkins 2>/dev/null || true
+                    docker network connect --alias jenkins ia_network $(hostname) || true
                     '''
 
                     if (env.IS_MAIN == 'true') {
@@ -147,8 +147,8 @@ print('OK:', '$f')
                         else
                             echo "Le conteneur qdrant existe déjà. Démarrage si nécessaire..."
                             docker start qdrant
-                            docker network connect ia_network qdrant 2>/dev/null || true
-                            docker network connect --alias qdrant ia_network qdrant 2>/dev/null || true
+                            docker network connect ia_network qdrant || true
+                            docker network connect --alias qdrant ia_network qdrant || true
                         fi
 
                         # ── n8n ──
@@ -165,8 +165,8 @@ print('OK:', '$f')
                         else
                             echo "Le conteneur n8n existe déjà. Démarrage si nécessaire..."
                             docker start n8n
-                            docker network connect ia_network n8n 2>/dev/null || true
-                            docker network connect --alias n8n ia_network n8n 2>/dev/null || true
+                            docker network connect ia_network n8n || true
+                            docker network connect --alias n8n ia_network n8n || true
                         fi
                         '''
                     } else {
