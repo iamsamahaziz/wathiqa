@@ -36,8 +36,8 @@ pipeline {
                         env.IS_MAIN = 'true'
                         env.QDRANT_PORT = '6334'
                         env.N8N_PORT = '5679'
-                        env.QDRANT_CONTAINER = 'ia_qdrant'
-                        env.N8N_CONTAINER = 'ia_n8n'
+                        env.QDRANT_CONTAINER = 'qdrant'
+                        env.N8N_CONTAINER = 'n8n'
                         env.QDRANT_URL = 'http://qdrant:6333'
                         env.N8N_URL = 'http://n8n:5678'
                         env.VENV = "/var/jenkins_home/venv/projet_ia"
@@ -119,7 +119,7 @@ print('OK:', '$f')
             }
         }
 
-                stage('3. Déploiement des Services') {
+        stage('3. Déploiement des Services') {
             steps {
                 script {
                     sh '''
@@ -136,7 +136,53 @@ print('OK:', '$f')
                         sh '''
                         # ── Qdrant ──
                         if ! docker ps -a --format "{{.Names}}" | grep -q "^qdrant$"; then
-}
+                            echo "Déploiement initial de Qdrant..."
+                            docker run -d \
+                                --name qdrant \
+                                --network ia_network \
+                                --network-alias qdrant \
+                                -p 6334:6333 \
+                                --restart unless-stopped \
+                                qdrant/qdrant:latest
+                        else
+                            echo "Le conteneur qdrant existe déjà. Démarrage si nécessaire..."
+                            docker start qdrant
+                            docker network connect ia_network qdrant 2>/dev/null || true
+                            docker network connect --alias qdrant ia_network qdrant 2>/dev/null || true
+                        fi
+
+                        # ── n8n ──
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^n8n$"; then
+                            echo "Déploiement initial de n8n..."
+                            docker run -d \
+                                --name n8n \
+                                --network ia_network \
+                                --network-alias n8n \
+                                -e N8N_METRICS=true \
+                                -p 5679:5678 \
+                                --restart unless-stopped \
+                                n8nio/n8n:latest
+                        else
+                            echo "Le conteneur n8n existe déjà. Démarrage si nécessaire..."
+                            docker start n8n
+                            docker network connect ia_network n8n 2>/dev/null || true
+                            docker network connect --alias n8n ia_network n8n 2>/dev/null || true
+                        fi
+                        '''
+                    } else {
+                        // En développement, nettoyage systématique pour un déploiement éphémère à neuf
+                        sh '''
+                        docker stop qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} || true
+                        docker rm   qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} || true
+
+                        docker run -d --name qdrant-${BRANCH_SLUG} --network ia_network --network-alias qdrant-${BRANCH_SLUG} -p ${QDRANT_PORT}:6333 qdrant/qdrant:latest
+                        docker run -d --name n8n-${BRANCH_SLUG}    --network ia_network --network-alias n8n-${BRANCH_SLUG}    -p ${N8N_PORT}:5678 -e N8N_METRICS=true n8nio/n8n:latest
+                        '''
+                    }
+                    sh 'sleep 5'
+                }
+            }
+        }
 
         stage('4. Vérification de Santé') {
             parallel {
