@@ -119,45 +119,23 @@ print('OK:', '$f')
             }
         }
 
-        stage('3. Déploiement des Services') {
-    steps {
-        script {
-            sh '''
-            command -v docker || apt-get install -y docker.io
-            docker network create ia_network 2>/dev/null || true
-            docker network connect --alias jenkins ia_network fstm_jenkins 2>/dev/null || true
-            '''
+                stage('3. Déploiement des Services') {
+            steps {
+                script {
+                    sh '''
+                    # Installation Docker si absent
+                    command -v docker || apt-get install -y docker.io
 
-            if (env.IS_MAIN == 'true') {
-                // ✅ MAIN → docker-compose, groupe wathiqa préservé
-                sh '''
-                docker-compose up -d
-                docker network connect --alias qdrant ia_network qdrant 2>/dev/null || true
-                docker network connect --alias n8n    ia_network n8n    2>/dev/null || true
-                '''
-            } else {
-                // ✅ FEATURE → containers éphémères isolés
-                sh '''
-                docker stop qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} 2>/dev/null || true
-                docker rm   qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} 2>/dev/null || true
+                    # Réseau commun ia_network
+                    docker network create ia_network 2>/dev/null || true
+                    docker network connect --alias jenkins ia_network fstm_jenkins 2>/dev/null || true
+                    '''
 
-                docker run -d --name qdrant-${BRANCH_SLUG} \
-                    --network ia_network \
-                    --network-alias qdrant-${BRANCH_SLUG} \
-                    -p ${QDRANT_PORT}:6333 \
-                    qdrant/qdrant:latest
-
-                docker run -d --name n8n-${BRANCH_SLUG} \
-                    --network ia_network \
-                    --network-alias n8n-${BRANCH_SLUG} \
-                    -p ${N8N_PORT}:5678 \
-                    -e N8N_METRICS=true \
-                    n8nio/n8n:latest
-                '''
-            }
-            sh 'sleep 5'
-        }
-    }
+                    if (env.IS_MAIN == 'true') {
+                        // En production (main), on s'assure que les conteneurs existent et tournent sans les recréer
+                        sh '''
+                        # ── Qdrant ──
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^qdrant$"; then
 }
 
         stage('4. Vérification de Santé') {
