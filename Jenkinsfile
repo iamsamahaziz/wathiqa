@@ -119,7 +119,7 @@ print('OK:', '$f')
             }
         }
 
-        stage('3. Déploiement des Services') {
+               stage('3. Déploiement des Services') {
             steps {
                 script {
                     sh '''
@@ -156,6 +156,7 @@ print('OK:', '$f')
                             echo "Déploiement initial de n8n..."
                             docker run -d \
                                 --name n8n \
+                                --label com.docker.compose.project=wathiqa \
                                 --network ia_network \
                                 --network-alias n8n \
                                 -e N8N_METRICS=true \
@@ -176,7 +177,7 @@ print('OK:', '$f')
                         docker rm   qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} || true
 
                         docker run -d --name qdrant-${BRANCH_SLUG} --network ia_network --network-alias qdrant-${BRANCH_SLUG} -p ${QDRANT_PORT}:6333 qdrant/qdrant:latest
-                        docker run -d --name n8n --label com.docker.compose.project=wathiqa --network ia_network --network-alias n8n -v n8n_data:/home/node/.n8n -e N8N_METRICS=true -p 5679:5678 --restart unless-stopped n8nio/n8n:latest
+                        docker run -d --name n8n-${BRANCH_SLUG}    --network ia_network --network-alias n8n-${BRANCH_SLUG}    -p ${N8N_PORT}:5678 -e N8N_METRICS=true n8nio/n8n:latest
                         '''
                     }
                     sh 'sleep 5'
