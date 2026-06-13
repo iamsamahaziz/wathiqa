@@ -31,7 +31,7 @@ pipeline {
 
                     echo "Branche détectée : ${env.BRANCH_SLUG}"
 
-                    if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master') {
+                    if (env.BRANCH_SLUG == 'main' || env.BRANCH_SLUG == 'master' || env.BRANCH_SLUG == 'multi-user-iso') {
                         // Configuration de Production (Branche main)
                         env.IS_MAIN = 'true'
                         env.QDRANT_PORT = '6334'
