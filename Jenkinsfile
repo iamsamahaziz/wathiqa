@@ -161,6 +161,7 @@ print('OK:', '$f')
                                 --network-alias n8n \
                                 -e N8N_METRICS=true \
                                 -p 5679:5678 \
+                                -v n8n_ia_data:/home/node/.n8n \
                                 --restart unless-stopped \
                                 n8nio/n8n:latest
                         else
@@ -177,10 +178,9 @@ print('OK:', '$f')
                         docker rm   qdrant-${BRANCH_SLUG} n8n-${BRANCH_SLUG} || true
 
                         docker run -d --name qdrant-${BRANCH_SLUG} --network ia_network --network-alias qdrant-${BRANCH_SLUG} -p ${QDRANT_PORT}:6333 qdrant/qdrant:latest
-                        docker run -d --name n8n-${BRANCH_SLUG}    --network ia_network --network-alias n8n-${BRANCH_SLUG}    -p ${N8N_PORT}:5678 -e N8N_METRICS=true n8nio/n8n:latest
+                        docker run -d --name n8n-${BRANCH_SLUG}    --network ia_network --network-alias n8n-${BRANCH_SLUG}    -p ${N8N_PORT}:5678 -e N8N_METRICS=true -v n8n_ia_data_${BRANCH_SLUG}:/home/node/.n8n n8nio/n8n:latest
                         '''
                     }
-                    sh 'sleep 5'
                 }
             }
         }
@@ -209,35 +209,14 @@ print('OK:', '$f')
                     steps {
                         script {
                             def n8nOK = false
-                            for (int i = 1; i <= 6; i++) {
-                                n8nOK = (sh(script: "curl -sf --max-time 5 ${env.N8N_URL}/healthz || curl -sf --max-time 5 ${env.N8N_URL}", returnStatus: true) == 0)
+                            for (int i = 1; i <= 40; i++) {
+                                n8nOK = (sh(script: "curl -sf --max-time 3 ${env.N8N_URL}/healthz || curl -sf --max-time 3 ${env.N8N_URL}", returnStatus: true) == 0)
                                 if (n8nOK) break
-                                echo "n8n non prêt (tentative ${i}/6) — attente de 10s..."
-                                sleep 10
+                                echo "n8n non prêt (tentative ${i}/40) — attente de 3s..."
+                                sleep 3
                             }
                             if (!n8nOK) {
-                                echo "⚠️ n8n semble bloqué. Récupération des logs pour diagnostic :"
-                                sh "docker logs ${env.N8N_CONTAINER} || true"
-                                
-                                echo "🔄 Tentative de recréation complète et propre du conteneur n8n..."
-                                sh """
-                                docker stop ${env.N8N_CONTAINER} || true
-                                docker rm ${env.N8N_CONTAINER} || true
-                                docker run -d \
-                                    --name ${env.N8N_CONTAINER} \
-                                    --label com.docker.compose.project=wathiqa \
-                                    --network ia_network \
-                                    --network-alias ${env.N8N_CONTAINER} \
-                                    -e N8N_METRICS=true \
-                                    -p ${env.N8N_PORT}:5678 \
-                                    --restart unless-stopped \
-                                    n8nio/n8n:latest
-                                """
-                                sleep 20
-                                n8nOK = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
-                            }
-                            if (!n8nOK) {
-                                echo "❌ Échec final après recréation. Logs de n8n :"
+                                echo "❌ Échec final. Logs de n8n :"
                                 sh "docker logs ${env.N8N_CONTAINER} || true"
                                 error "n8n injoignable sur ${env.N8N_URL}"
                             }
@@ -270,19 +249,7 @@ print('OK:', '$f')
                     docker cp Wathiqa.json ${env.N8N_CONTAINER}:/tmp/Wathiqa.json
                     docker exec -u node ${env.N8N_CONTAINER} n8n import:workflow --input=/tmp/Wathiqa.json
                     docker exec -u node ${env.N8N_CONTAINER} n8n update:workflow --all --active=true
-                    docker restart ${env.N8N_CONTAINER}
                     """
-
-                    echo "⏳ Attente du redémarrage de n8n..."
-                    sleep 5
-                    def n8nOK = false
-                    for (int i = 1; i <= 6; i++) {
-                        n8nOK = (sh(script: "curl -sf --max-time 5 ${env.N8N_URL}/healthz || curl -sf --max-time 5 ${env.N8N_URL}", returnStatus: true) == 0)
-                        if (n8nOK) break
-                        echo "n8n en cours de redémarrage (tentative ${i}/6)..."
-                        sleep 5
-                    }
-                    if (!n8nOK) error "❌ n8n n'a pas pu redémarrer après l'import du workflow"
                     echo "✅ n8n est prêt avec le workflow actif !"
                 }
             }
@@ -291,8 +258,9 @@ print('OK:', '$f')
         stage('5. Installation') {
             steps {
                 sh '''
-                rm -rf "$VENV"
-                python3 -m venv "$VENV"
+                if [ ! -d "$VENV" ]; then
+                    python3 -m venv "$VENV"
+                fi
                 "$PIP" install -r requirements.txt -q --cache-dir "/var/jenkins_home/.pip_cache"
                 '''
             }

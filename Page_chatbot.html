@@ -562,61 +562,61 @@ footer p {
     <p>Choisissez une catégorie pour trouver votre démarche</p>
   </div>
   <div class="categories-grid">
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('État civil')">
       <span class="cat-icon">📋</span>
       <h3>État civil</h3>
       <div class="cat-ar">الحالة المدنية</div>
       <span class="cat-count">7 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Identité / CNIE')">
       <span class="cat-icon">🪪</span>
       <h3>Identité</h3>
       <div class="cat-ar">الهوية</div>
       <span class="cat-count">4 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Voyage & Visa')">
       <span class="cat-icon">✈️</span>
       <h3>Voyage et visa</h3>
       <div class="cat-ar">السفر والفيزا</div>
       <span class="cat-count">5 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Véhicule / Permis')">
       <span class="cat-icon">🚗</span>
       <h3>Véhicule</h3>
       <div class="cat-ar">السيارة</div>
       <span class="cat-count">6 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Emploi / CNSS')">
       <span class="cat-icon">💼</span>
       <h3>Emploi</h3>
       <div class="cat-ar">الخدمة</div>
       <span class="cat-count">6 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Santé / AMO')">
       <span class="cat-icon">🏥</span>
       <h3>CNSS et santé</h3>
       <div class="cat-ar">الصندوق والصحة</div>
       <span class="cat-count">7 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Famille / Mariage')">
       <span class="cat-icon">👨‍👩‍👧</span>
       <h3>Famille</h3>
       <div class="cat-ar">العائلة</div>
       <span class="cat-count">6 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Logement / Urbanisme')">
       <span class="cat-icon">🏠</span>
       <h3>Logement</h3>
       <div class="cat-ar">السكن</div>
       <span class="cat-count">7 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Impôts / Finances')">
       <span class="cat-icon">💰</span>
       <h3>Finances et impôts</h3>
       <div class="cat-ar">المالية والضرائب</div>
       <span class="cat-count">6 démarches</span>
     </div>
-    <div class="cat-card" onclick="openChat()">
+    <div class="cat-card" onclick="openChat('Études / Aide sociale')">
       <span class="cat-icon">🎓</span>
       <h3>Aide sociale et études</h3>
       <div class="cat-ar">المساعدة والدراسة</div>
@@ -825,12 +825,16 @@ const CATEGORIES = [
 
 let welcomeShown = false;
 
-function openChat() {
+function openChat(category) {
   const w = document.getElementById('chatWidget');
   w.style.display = 'flex';
   document.querySelector('.chat-trigger .badge').style.display = 'none';
   if (!welcomeShown) { showWelcome(); welcomeShown = true; }
   setTimeout(() => document.getElementById('chatInput').focus(), 100);
+  
+  if (category) {
+    sendMessageWithText('Quelles sont les démarches pour : ' + category + ' ?');
+  }
 }
 
 function closeChat() {
@@ -1100,11 +1104,23 @@ async function sendMessageWithText(question) {
     cachedAnswer = CACHED_RESPONSES['Identité / CNIE'];
   } else if (qNorm.includes('vehicule') || qNorm.includes('permis') || qNorm.includes('carte grise')) {
     cachedAnswer = CACHED_RESPONSES['Véhicule / Permis'];
+  } else if (qNorm.includes('emploi') || qNorm.includes('cnss') || qNorm.includes('travail')) {
+    cachedAnswer = CACHED_RESPONSES['Emploi / CNSS'];
+  } else if (qNorm.includes('sante') || qNorm.includes('amo') || qNorm.includes('cnops') || qNorm.includes('medical')) {
+    cachedAnswer = CACHED_RESPONSES['Santé / AMO'];
+  } else if (qNorm.includes('famille') || qNorm.includes('mariage') || qNorm.includes('divorce') || qNorm.includes('adoul')) {
+    cachedAnswer = CACHED_RESPONSES['Famille / Mariage'];
+  } else if (qNorm.includes('logement') || qNorm.includes('urbanisme') || qNorm.includes('construire') || qNorm.includes('propriete')) {
+    cachedAnswer = CACHED_RESPONSES['Logement / Urbanisme'];
+  } else if (qNorm.includes('impot') || qNorm.includes('finance') || qNorm.includes('taxe') || qNorm.includes('vignette')) {
+    cachedAnswer = CACHED_RESPONSES['Impôts / Finances'];
+  } else if (qNorm.includes('etude') || qNorm.includes('aide sociale') || qNorm.includes('bourse') || qNorm.includes('minhaty') || qNorm.includes('rsu')) {
+    cachedAnswer = CACHED_RESPONSES['Études / Aide sociale'];
   }
 
   if (cachedAnswer) {
-    // Réponse cachée avec délai simulé de 1.5s
-    await new Promise(r => setTimeout(r, 1500));
+    // Réponse cachée avec délai simulé très court (200ms) pour une réactivité maximale
+    await new Promise(r => setTimeout(r, 200));
     hideTyping();
     addMessage(fmt(cachedAnswer), 'bot');
   } else {
