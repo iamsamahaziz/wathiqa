@@ -520,7 +520,7 @@ footer p {
     <span class="dot"></span>
     Chatbot IA disponible 24/7
   </div>
-  <div class="hero-flag">🇲🇦</div>
+  <div class="hero-flag"><img src="https://flagcdn.com/w80/ma.png" width="50" style="vertical-align: middle;" alt="Drapeau Maroc"></div>
   <h1>
     Wathiqa
     <span class="arabic">وثيقة</span>
@@ -806,7 +806,7 @@ footer p {
 
 <script>
 // ⚠️ Remplacez par l'URL de votre webhook n8n
-const WEBHOOK_URL = 'http://localhost:5678/webhook/adminbot';
+const WEBHOOK_URL = '/webhook/adminbot';
 
 const GREETINGS = /^(hi|hello|bonjour|salam|salut|بوجور|السلام|اهلا|مرحبا|bonsoir|coucou|hey|yo|slt|bjr|wach|واش|كيفاش|كيداير|آش|labas|لاباس)[\s!?.]*$/i;
 
@@ -897,6 +897,187 @@ function showTyping() {
 }
 function hideTyping() { const t = document.getElementById('typingIndicator'); if(t) t.remove(); }
 
+const CACHED_RESPONSES = {
+  'État civil': `Les démarches liées à l'État civil au Maroc couvrent plusieurs documents essentiels pour votre identification légale.
+
+📋 **DOCUMENTS NÉCESSAIRES SELON LA DÉMARCHE :**
+• **Acte de naissance :** La Carte Nationale d'Identité Électronique (CNIE) du demandeur et le livret de famille. Si la demande est faite pour soi-même, la CNIE suffit.
+• **Certificat de vie :** Vous devez vous présenter physiquement avec votre CNIE originale. Si la personne est dans l'incapacité de se déplacer, un certificat médical détaillé peut être exigé.
+• **Acte de décès :** Le certificat médical de décès délivré par le médecin ayant constaté le décès, ainsi que la CNIE du défunt et celle du déclarant.
+• **Légalisation de signature (Muqata'a) :** Le document original à légaliser (non signé au préalable) et votre CNIE valide. Vous devez signer le document devant l'agent.
+• **Certificat de résidence (ou de domicile) :** Votre CNIE, une quittance récente (eau, électricité ou téléphone) à votre nom, ou à défaut, une attestation du Moqadem.
+
+📍 **OÙ ALLER :** 
+Ces démarches s'effectuent généralement au bureau d'état civil de l'annexe administrative (Moqata'a) ou de la commune correspondant à votre lieu de résidence.
+
+⏱️ **DÉLAI DE DÉLIVRANCE :** 
+La majorité de ces documents sont délivrés de manière quasi-immédiate (le jour même) ou dans un délai maximum de 48 heures.
+
+💰 **COÛT :** 
+Les extraits d'acte de naissance et certificats de vie sont gratuits. Pour la légalisation de signature ou la certification conforme, un timbre fiscal (souvent de 20 DH par document) est requis.
+
+💡 **CONSEIL PRATIQUE :** 
+Lors de vos visites à l'arrondissement, pensez toujours à demander plusieurs copies certifiées conformes de vos documents originaux, cela vous évitera de nombreux allers-retours à l'avenir. Vous pouvez également demander certains documents en ligne via le portail (watiqa.ma).
+
+🇲🇦 **بالدارجة :** 
+بالنسبة للإجراءات ديال الحالة المدنية (بحال عقد الازدياد، شهادة الحياة، أو تصحيح الإمضاء)، خاصك ديما تمشي للمقاطعة أو الجماعة اللي تابع ليها. 
+الوثائق اللي غتحتاج غالبا هي البطاقة الوطنية (لاكارط) ودفتر الحالة المدنية. 
+بالنسبة لتصحيح الإمضاء (ليگاليزاسيون)، خاصك تسني الورقة قدام الموظف وتخلص تنبر (غالبا 20 درهم). 
+نصيحة: ديما خرج نسخ زايدة وگاليزيهم باش يبقاو عندك للضرورة، وممكن تطلب عقد الازدياد أونلاين من موقع watiqa.ma باش تربح الوقت.`,
+
+  'Identité / CNIE': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Première demande : acte de naissance + certificat de résidence + 2 photos
+• Renouvellement : ancienne CNIE + 2 photos + formulaire
+
+📍 **OÙ ALLER :** Centre d'inscription de la DGSN (commissariat)
+
+⏱️ **DÉLAI :** 7 à 15 jours ouvrables
+
+💰 **COÛT :** 75 DH (première demande) / 50 DH (renouvellement)
+
+💡 **CONSEIL :** Prenez rendez-vous sur www.cnie.ma pour éviter l'attente.
+
+🇲🇦 **بالدارجة :** باش تخرج البطاقة الوطنية، خود معاك عقد الازدياد وشهادة السكنى و2 تصاور. الثمن 75 درهم. كتخرج ف 7-15 يوم.`,
+
+  'Voyage & Visa': `Les procédures de voyage, qu'il s'agisse de l'obtention d'un passeport biométrique marocain ou d'une demande de Visa, exigent une préparation rigoureuse de votre dossier.
+
+📋 **DOCUMENTS NÉCESSAIRES SELON LA DÉMARCHE :**
+• **Pour le Passeport Biométrique Marocain :**
+  - Le formulaire de demande (à remplir et imprimer depuis passeport.ma).
+  - Une copie de la Carte Nationale d'Identité Électronique (CNIE) en cours de validité.
+  - 2 photographies d'identité récentes sur fond bleu ou gris clair (35x45 mm).
+  - Un timbre fiscal de 500 DH.
+  - En cas de renouvellement, l'ancien passeport doit être restitué.
+
+• **Pour un Visa (ex: Espace Schengen) :**
+  - Un passeport valide (au moins 3 à 6 mois après la date de retour prévue).
+  - Le formulaire de demande de visa dûment rempli et signé.
+  - Une assurance voyage couvrant les frais médicaux et le rapatriement.
+  - Des justificatifs de moyens financiers : 3 derniers relevés bancaires originaux.
+  - Des justificatifs socio-professionnels : attestation de travail, 3 dernières fiches de paie, attestation CNSS.
+  - La preuve d'hébergement : réservation d'hôtel ou attestation d'accueil.
+  - La réservation de vos billets d'avion (aller-retour).
+
+📍 **OÙ ALLER :** 
+- **Passeport :** Le dépôt se fait au niveau de l'annexe administrative (Moqata'a) de votre résidence.
+- **Visa :** Selon le pays de destination, le dossier doit être déposé au consulat ou via une agence sous-traitante agréée (comme TLS Contact ou VFS Global).
+
+⏱️ **DÉLAI DE DÉLIVRANCE :** 
+- **Passeport :** En règle générale, entre 5 et 10 jours ouvrables.
+- **Visa :** Le traitement prend entre 15 et 30 jours (peut s'allonger avant l'été).
+
+💰 **COÛT :** 
+- **Passeport :** 500 DH.
+- **Visa Schengen :** Environ 80 EUR (880 DH) pour les frais consulaires, plus les frais de service de l'agence (environ 250 à 350 DH).
+
+💡 **CONSEIL PRATIQUE :** 
+N'attendez jamais la dernière minute pour vos demandes de visa. Les rendez-vous chez TLS Contact peuvent être pris d'assaut des mois à l'avance. Anticipez votre demande.
+
+🇲🇦 **بالدارجة :** 
+بالنسبة للسفر، باش تصاوب الباسبور خاصك تعمر الاستمارة فموقع passeport.ma، وتوجد لاكارط، 2 تصاور، وتنبر ديال 500 درهم، وتدفع الدوسي فالمقاطعة. الباسبور كيخرج ف 5 حتال 10 أيام.
+أما بالنسبة للفيزا (بحال شينغن)، الدوسي كيكون فيه الباسبور، التأمين ديال السفر (Assurance)، ريزيرڤاسيون ديال لوطيل والطيارة، وكشف الحساب البنكي ديال 3 شهور اللخرة، وشهادة العمل مع وراق لاكنيسيس (CNSS). الدفع كيكون ف TLS Contact ولا VFS Global. 
+نصيحة: خوذ الموعد ديال الفيزا بكري (على الأقل 3 شهور قبل) حيت المواعيد كيكونو عامرين بزاف.`,
+
+  'Véhicule / Permis': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Permis de conduire : certificat médical + certificat d'auto-école + CNIE + 4 photos
+• Carte grise : facture d'achat + assurance + visite technique + CNIE
+
+📍 **OÙ ALLER :** Centre d'immatriculation (Narsa)
+
+⏱️ **DÉLAI :** Permis : après réussite examen | Carte grise : 3-7 jours
+
+💰 **COÛT :** Permis : ~150 DH | Carte grise : variable selon véhicule
+
+💡 **CONSEIL :** Prenez RDV sur le site de Narsa pour éviter les files d'attente.
+
+🇲🇦 **بالدارجة :** البيرمي خصك تدوز عند طبيب وتقرا فأوطو إكول. الكارط كريز خصك الفاكتورة والأسيرونس والفيزيت تيكنيك.`,
+
+  'Emploi / CNSS': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Inscription CNSS : CNIE + contrat de travail + formulaire d'immatriculation
+• Attestation de travail : demande auprès de l'employeur
+
+📍 **OÙ ALLER :** Agence CNSS la plus proche
+
+⏱️ **DÉLAI :** Immédiat à 5 jours
+
+💰 **COÛT :** Gratuit
+
+💡 **CONSEIL :** Vérifiez vos déclarations sur le portail www.cnss.ma.
+
+🇲🇦 **بالدارجة :** التسجيل ف CNSS مجاني، خود معاك البطاقة والكونطرا ديال الخدمة. تقد تشوف التصريحات ديالك فالموقع.`,
+
+  'Santé / AMO': `📋 **DOCUMENTS NÉCESSAIRES :**
+• AMO obligatoire : attestation CNSS + CNIE + formulaire
+• AMEn Tadamon : attestation Registre Social Unifié (RSU)
+
+📍 **OÙ ALLER :** CNSS pour les salariés | CNOPS pour les fonctionnaires
+
+⏱️ **DÉLAI :** 5 à 15 jours
+
+💰 **COÛT :** Cotisation prélevée sur le salaire
+
+💡 **CONSEIL :** Gardez toujours vos factures médicales pour le remboursement.
+
+🇲🇦 **بالدارجة :** التغطية الصحية كتكون عبر CNSS ولا CNOPS. خص يكون عندك الملف كامل باش تسجل. حافظ على الفاكتورات ديال الطبيب.`,
+
+  'Famille / Mariage': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Acte de mariage : CNIE des époux + acte de naissance + certificat médical + autorisation du juge
+• Livret de famille : acte de mariage + CNIE
+
+📍 **OÙ ALLER :** Tribunal de la famille (section notariale)
+
+⏱️ **DÉLAI :** Variable, 1 à 4 semaines
+
+💰 **COÛT :** Frais de Adoul (~1000-2000 DH)
+
+💡 **CONSEIL :** Préparez tous les documents à l'avance pour éviter les allers-retours.
+
+🇲🇦 **بالدارجة :** الزواج خصك تمشي عند العدول، خود معاك البطاقة وعقد الازدياد وشهادة طبية. الثمن ديال العدول بين 1000-2000 درهم.`,
+
+  'Logement / Urbanisme': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Permis de construire : plan architectural + titre foncier + CPS
+• Certificat de propriété : titre foncier + CNIE
+
+📍 **OÙ ALLER :** Commune urbaine (urbanisme) | Conservation foncière
+
+⏱️ **DÉLAI :** Permis de construire : 1-2 mois | Certificat : 3-5 jours
+
+💰 **COÛT :** Variable selon le projet
+
+💡 **CONSEIL :** Faites appel à un architecte agréé pour le permis de construire.
+
+🇲🇦 **بالدارجة :** رخصة البناء خصك تمشي للجماعة مع التصميم والرسم. شهادة الملكية من المحافظة العقارية.`,
+
+  'Impôts / Finances': `📋 **DOCUMENTS NÉCESSAIRES :**
+• IR : bulletin de paie + attestation de salaire
+• Taxe d'habitation : avis d'imposition + CNIE
+• Vignette auto : carte grise + ancienne vignette
+
+📍 **OÙ ALLER :** Direction des impôts | Perception | En ligne sur tax.gov.ma
+
+⏱️ **DÉLAI :** Immédiat (en ligne) à 5 jours
+
+💰 **COÛT :** Selon barème fiscal
+
+💡 **CONSEIL :** Payez en ligne sur www.tax.gov.ma pour éviter les déplacements.
+
+🇲🇦 **بالدارجة :** الضرائب تقد تخلصها أونلاين ف tax.gov.ma. الفينييت خصك الكارط كريز. خلص فالوقت باش ما يكونش عندك غرامات.`,
+
+  'Études / Aide sociale': `📋 **DOCUMENTS NÉCESSAIRES :**
+• Bourse : attestation de scolarité + relevé de notes + revenu des parents
+• Aide sociale : inscription RSU + CNIE + justificatifs de revenu
+
+📍 **OÙ ALLER :** Université (service bourses) | Entraide nationale | RSU en ligne
+
+⏱️ **DÉLAI :** Variable selon le programme
+
+💰 **COÛT :** Gratuit
+
+💡 **CONSEIL :** Inscrivez-vous au Registre Social Unifié (RSU) sur rsu.ma.
+
+🇲🇦 **بالدارجة :** المنحة خصك تسجل فالجامعة وتعطيهم الملف. المساعدة الاجتماعية سجل ف RSU أونلاين.`
+};
+
 async function sendMessageWithText(question) {
   const input = document.getElementById('chatInput');
   const btn = document.getElementById('sendBtn');
@@ -906,20 +1087,50 @@ async function sendMessageWithText(question) {
   btn.style.opacity = '0.5';
   addMessage(fmt(question), 'user');
   showTyping();
-  try {
-    const res = await fetch(WEBHOOK_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({question})
-    });
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
-    hideTyping();
-    addMessage(fmt(data.answer || 'Désolé, je n\'ai pas pu répondre.'), 'bot');
-  } catch(e) {
-    hideTyping();
-    addMessage('⚠️ Impossible de joindre le serveur. Vérifiez que n8n est actif et que le webhook est bien activé.', 'bot');
+
+  // Vérifier le cache de manière robuste (sans majuscules/accents)
+  const qNorm = question.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+  let cachedAnswer = null;
+  
+  if (qNorm.includes('etat civil') || qNorm.includes('naissance') || qNorm.includes('deces')) {
+    cachedAnswer = CACHED_RESPONSES['État civil'];
+  } else if (qNorm.includes('voyage') || qNorm.includes('visa') || qNorm.includes('passeport')) {
+    cachedAnswer = CACHED_RESPONSES['Voyage & Visa'];
+  } else if (qNorm.includes('identite') || qNorm.includes('cnie') || qNorm.includes('carte nationale')) {
+    cachedAnswer = CACHED_RESPONSES['Identité / CNIE'];
+  } else if (qNorm.includes('vehicule') || qNorm.includes('permis') || qNorm.includes('carte grise')) {
+    cachedAnswer = CACHED_RESPONSES['Véhicule / Permis'];
   }
+
+  if (cachedAnswer) {
+    // Réponse cachée avec délai simulé de 1.5s
+    await new Promise(r => setTimeout(r, 1500));
+    hideTyping();
+    addMessage(fmt(cachedAnswer), 'bot');
+  } else {
+    // Appel n8n pour les questions libres
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({question})
+      });
+      if (!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      hideTyping();
+      addMessage(fmt(data.answer || 'Désolé, je n\\'ai pas pu répondre.'), 'bot');
+    } catch(e) {
+      hideTyping();
+      addMessage('⚠️ Impossible de joindre le serveur. Vérifiez que n8n est actif et que le webhook est bien activé.', 'bot');
+    }
+  }
+  
+  // Forcer le scroll tout en bas après la réponse longue
+  setTimeout(() => {
+    const c = document.getElementById('chatMessages');
+    c.scrollTop = c.scrollHeight;
+  }, 100);
+
   input.disabled = false;
   btn.disabled = false;
   btn.style.opacity = '1';
@@ -930,7 +1141,6 @@ function sendMessage() {
   const input = document.getElementById('chatInput');
   const question = input.value.trim();
   if (!question) return;
-  // Message vague → afficher menu catégories
   if (GREETINGS.test(question)) {
     addMessage(fmt(question), 'user');
     input.value = '';

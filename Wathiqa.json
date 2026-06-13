@@ -64,7 +64,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: \"mistral-embed\", input: [$json.question] }) }}",
+        "body": "{\n  \"model\": \"mistral-embed\",\n  \"input\": [\"{{ $json.question }}\"]\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -74,7 +74,10 @@
         1792
       ],
       "id": "3b4a7785-7b6b-4072-93be-f133817aea06",
-      "name": "Mistral Embed"
+      "name": "Mistral Embed",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "retryInterval": 3000
     },
     {
       "parameters": {
@@ -97,7 +100,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json.result || [];\nconst question = $('Code in JavaScript').first().json.question;\n\nlet context = '';\nresults.forEach(r => {\n  context += `---\\n${r.payload.content}\\n\\n`;\n});\n\nconst hasResults = results.length > 0;\n\nconst systemMsg = `Tu es Wathiqa, assistant expert des démarches administratives marocaines.\nSois précis et clair. Réponds d'abord en français, puis ajoute un résumé en darija marocaine en dessous sous le titre \"🇲🇦 بالدارجة :\"\n\nRÈGLES :\n1. Si des documents sont fournis, base ta réponse UNIQUEMENT dessus.\n2. Si aucun document n'est fourni ou s'ils ne contiennent pas la réponse, tu peux répondre avec tes connaissances générales MAIS ajoute à la fin :\n   \"⚠️ Cette information ne provient pas de ma base de données officielle. Je vous recommande de vérifier auprès de l'administration concernée ou d'appeler le 3737.\"\n3. Ne fabrique jamais de faux documents ou procédures.\n\nFormat de réponse (utilise uniquement les sections pertinentes) :\n📋 DOCUMENTS NÉCESSAIRES : ...\n📍 OÙ ALLER : ...\n⏱️ DÉLAI : ...\n💰 COÛT : ...\n💡 CONSEIL : ...`;\n\nreturn [{ json: {\n  mistralBody: JSON.stringify({\n    model: \"mistral-small-latest\",\n    temperature: 0.1,\n    messages: [\n      { role: \"system\", content: systemMsg },\n      { role: \"user\", content: hasResults \n        ? `Documents :\\n${context}\\nQuestion : ${question}` \n        : `Aucun document trouvé dans la base.\\nQuestion : ${question}` \n      }\n    ]\n  })\n}}];"
+        "jsCode": "const results = $input.first().json.result || [];\nconst question = $('Code in JavaScript').first().json.question;\n\nlet context = '';\nresults.forEach(r => {\n  context += `---\\n${r.payload.content}\\n\\n`;\n});\n\nconst hasResults = results.length > 0;\n\nconst systemMsg = `Tu es Wathiqa, assistant des démarches administratives marocaines. Sois concis. Réponds en français puis ajoute un résumé court en darija sous \"🇲🇦 بالدارجة :\". Base-toi sur les documents fournis ou tes connaissances. Format: 📋 Documents / 📍 Lieu / ⏱️ Délai / 💰 Coût / 💡 Conseil.`;\n\nreturn [{ json: {\n  mistralBody: JSON.stringify({\n    model: \"mistral-small-latest\",\n    temperature: 0.1,\n    max_tokens: 800,\n    messages: [\n      { role: \"system\", content: systemMsg },\n      { role: \"user\", content: hasResults \n        ? `Documents :\\n${context}\\nQuestion : ${question}` \n        : `Aucun document trouvé dans la base.\\nQuestion : ${question}` \n      }\n    ]\n  })\n}}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -138,7 +141,10 @@
         1760
       ],
       "id": "d51e602f-d41e-409a-a45f-dfbafdfcdba5",
-      "name": "Mistral Completion"
+      "name": "Mistral Completion",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "retryInterval": 3000
     },
     {
       "parameters": {

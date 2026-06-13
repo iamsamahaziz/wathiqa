@@ -1,38 +1,41 @@
-version: '3.8'
+name: wathiqa
 
 services:
 
-  # ─── Notre facteur de métriques (Prometheus) ───
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: ia_prometheus
+  # ─── Qdrant (Base de données vectorielle Wathiqa) ───
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
     ports:
-      - "9090:9090"  # Permet d'ouvrir l'interface de Prometheus sur votre navigateur (http://localhost:9090)
+      - "6334:6333"  # Port exposé de production pour Wathiqa
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro  # On donne notre fichier de config à Prometheus
-      - prometheus_data:/prometheus  # Pour que Prometheus garde ses données en mémoire même s'il redémarre
-    networks:
-      - ia_network  # Connexion au réseau de votre projet d'IA pour pouvoir "discuter" avec Qdrant et Jenkins
-    restart: unless-stopped
-
-  # ─── Notre interface graphique de métriques (Grafana) ───
-  grafana:
-    image: grafana/grafana-enterprise:10.4.1
-    container_name: ia_grafana
-    user: "0"  # Force l'exécution en ROOT pour contourner tout blocage de permission Windows/WSL2 !
-    ports:
-      - "3002:3000"  # Permet d'ouvrir Grafana sur votre navigateur (http://localhost:3002)
-    volumes:
-      - grafana_data:/var/lib/grafana  # Pour que Grafana garde vos dashboards et utilisateurs en mémoire
+      - qdrant_ia_data:/qdrant/storage
     networks:
       - ia_network
     restart: unless-stopped
 
-# ─── Déclaration du réseau existant et des volumes ───
+  # ─── n8n (Moteur de workflows pour Wathiqa) ───
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5679:5678"  # Port exposé de production pour Wathiqa
+
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_METRICS=true
+    volumes:
+      - n8n_ia_data:/home/node/.n8n
+    networks:
+      - ia_network
+    restart: unless-stopped
+
 networks:
   ia_network:
-    external: true  # Le réseau commun est géré extérieurement (créé par le pipeline Jenkins !)
+    external: true  # Réseau partagé par Jenkins et la stack Wathiqa
 
 volumes:
-  prometheus_data:
-  grafana_data:
+  qdrant_ia_data:
+  n8n_ia_data:

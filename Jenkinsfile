@@ -36,8 +36,8 @@ pipeline {
                         env.IS_MAIN = 'true'
                         env.QDRANT_PORT = '6334'
                         env.N8N_PORT = '5679'
-                        env.QDRANT_CONTAINER = 'ia_qdrant'
-                        env.N8N_CONTAINER = 'ia_n8n'
+                        env.QDRANT_CONTAINER = 'qdrant'
+                        env.N8N_CONTAINER = 'n8n'
                         env.QDRANT_URL = 'http://qdrant:6333'
                         env.N8N_URL = 'http://n8n:5678'
                         env.VENV = "/var/jenkins_home/venv/projet_ia"
@@ -128,49 +128,45 @@ print('OK:', '$f')
 
                     # Réseau commun ia_network
                     docker network create ia_network 2>/dev/null || true
-                    docker network connect --alias jenkins ia_network fstm_jenkins 2>/dev/null || true
+                    docker network connect --alias jenkins ia_network $(hostname) || true
                     '''
 
                     if (env.IS_MAIN == 'true') {
-                        // En production (main), on déploie ou démarre sans tout casser
+                        // En production (main), on s'assure que les conteneurs existent et tournent sans les recréer
                         sh '''
-                        # Nettoyage automatique des anciens conteneurs pour appliquer les nouveaux ports
-                        docker rm -f ia_qdrant || true
-                        docker rm -f ia_n8n || true
-
-                        # ── Qdrant Production ──
-                        if ! docker ps -a --format "{{.Names}}" | grep -q "^ia_qdrant$"; then
+                        # ── Qdrant ──
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^qdrant$"; then
                             echo "Déploiement initial de Qdrant..."
                             docker run -d \
-                                --name ia_qdrant \
+                                --name qdrant \
                                 --network ia_network \
                                 --network-alias qdrant \
                                 -p 6334:6333 \
                                 --restart unless-stopped \
                                 qdrant/qdrant:latest
-                        elif ! docker ps --format "{{.Names}}" | grep -q "^ia_qdrant$"; then
-                            echo "Démarrage de ia_qdrant arrêté..."
-                            docker start ia_qdrant
                         else
-                            echo "ia_qdrant est déjà en cours d'exécution."
+                            echo "Le conteneur qdrant existe déjà. Démarrage si nécessaire..."
+                            docker start qdrant
+                            docker network connect ia_network qdrant || true
+                            docker network connect --alias qdrant ia_network qdrant || true
                         fi
 
-                        # ── n8n Production ──
-                        if ! docker ps -a --format "{{.Names}}" | grep -q "^ia_n8n$"; then
+                        # ── n8n ──
+                        if ! docker ps -a --format "{{.Names}}" | grep -q "^n8n$"; then
                             echo "Déploiement initial de n8n..."
                             docker run -d \
-                                --name ia_n8n \
+                                --name n8n \
                                 --network ia_network \
                                 --network-alias n8n \
                                 -e N8N_METRICS=true \
                                 -p 5679:5678 \
                                 --restart unless-stopped \
                                 n8nio/n8n:latest
-                        elif ! docker ps --format "{{.Names}}" | grep -q "^ia_n8n$"; then
-                            echo "Démarrage de ia_n8n arrêté..."
-                            docker start ia_n8n
                         else
-                            echo "ia_n8n est déjà en cours d'exécution."
+                            echo "Le conteneur n8n existe déjà. Démarrage si nécessaire..."
+                            docker start n8n
+                            docker network connect ia_network n8n || true
+                            docker network connect --alias n8n ia_network n8n || true
                         fi
                         '''
                     } else {
@@ -219,13 +215,31 @@ print('OK:', '$f')
                                 sleep 10
                             }
                             if (!n8nOK) {
-                                echo "n8n semble bloqué, tentative de redémarrage..."
-                                sh "docker restart ${env.N8N_CONTAINER} || true"
+                                echo "⚠️ n8n semble bloqué. Récupération des logs pour diagnostic :"
+                                sh "docker logs ${env.N8N_CONTAINER} || true"
+                                
+                                echo "🔄 Tentative de recréation complète et propre du conteneur n8n..."
+                                sh """
+                                docker stop ${env.N8N_CONTAINER} || true
+                                docker rm ${env.N8N_CONTAINER} || true
+                                docker run -d \
+                                    --name ${env.N8N_CONTAINER} \
+                                    --network ia_network \
+                                    --network-alias ${env.N8N_CONTAINER} \
+                                    -e N8N_METRICS=true \
+                                    -p ${env.N8N_PORT}:5678 \
+                                    --restart unless-stopped \
+                                    n8nio/n8n:latest
+                                """
                                 sleep 20
                                 n8nOK = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             }
-                            if (!n8nOK) error "n8n injoignable sur ${env.N8N_URL}"
-                            echo "n8n : OK"
+                            if (!n8nOK) {
+                                echo "❌ Échec final après recréation. Logs de n8n :"
+                                sh "docker logs ${env.N8N_CONTAINER} || true"
+                                error "n8n injoignable sur ${env.N8N_URL}"
+                            }
+                            echo "✅ n8n : OK"
                         }
                     }
                 }
@@ -242,6 +256,32 @@ print('OK:', '$f')
                             echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT (non bloquant)'}"
                         }
                     }
+                }
+            }
+        }
+
+        stage('4.5. Configuration du Workflow n8n') {
+            steps {
+                script {
+                    echo "📥 Importation et activation automatique du workflow dans n8n..."
+                    sh """
+                    docker cp Wathiqa.json ${env.N8N_CONTAINER}:/tmp/Wathiqa.json
+                    docker exec -u node ${env.N8N_CONTAINER} n8n import:workflow --input=/tmp/Wathiqa.json
+                    docker exec -u node ${env.N8N_CONTAINER} n8n update:workflow --all --active=true
+                    docker restart ${env.N8N_CONTAINER}
+                    """
+
+                    echo "⏳ Attente du redémarrage de n8n..."
+                    sleep 5
+                    def n8nOK = false
+                    for (int i = 1; i <= 6; i++) {
+                        n8nOK = (sh(script: "curl -sf --max-time 5 ${env.N8N_URL}/healthz || curl -sf --max-time 5 ${env.N8N_URL}", returnStatus: true) == 0)
+                        if (n8nOK) break
+                        echo "n8n en cours de redémarrage (tentative ${i}/6)..."
+                        sleep 5
+                    }
+                    if (!n8nOK) error "❌ n8n n'a pas pu redémarrer après l'import du workflow"
+                    echo "✅ n8n est prêt avec le workflow actif !"
                 }
             }
         }
