@@ -4,7 +4,7 @@ import json
 import os
 
 PORT = 8080
-N8N_URL = "http://localhost:5679"
+N8N_URL = "http://127.0.0.1:5679"
 
 class ProxyHandler(http.server.SimpleHTTPRequestHandler):
 
