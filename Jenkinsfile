@@ -216,13 +216,32 @@ print('OK:', '$f')
                                 sleep 10
                             }
                             if (!n8nOK) {
-                                echo "n8n semble bloqué, tentative de redémarrage..."
-                                sh "docker restart ${env.N8N_CONTAINER} || true"
+                                echo "⚠️ n8n semble bloqué. Récupération des logs pour diagnostic :"
+                                sh "docker logs ${env.N8N_CONTAINER} || true"
+                                
+                                echo "🔄 Tentative de recréation complète et propre du conteneur n8n..."
+                                sh """
+                                docker stop ${env.N8N_CONTAINER} || true
+                                docker rm ${env.N8N_CONTAINER} || true
+                                docker run -d \
+                                    --name ${env.N8N_CONTAINER} \
+                                    --label com.docker.compose.project=wathiqa \
+                                    --network ia_network \
+                                    --network-alias ${env.N8N_CONTAINER} \
+                                    -e N8N_METRICS=true \
+                                    -p ${env.N8N_PORT}:5678 \
+                                    --restart unless-stopped \
+                                    n8nio/n8n:latest
+                                """
                                 sleep 20
                                 n8nOK = (sh(script: "curl -sf --max-time 10 ${env.N8N_URL}", returnStatus: true) == 0)
                             }
-                            if (!n8nOK) error "n8n injoignable sur ${env.N8N_URL}"
-                            echo "n8n : OK"
+                            if (!n8nOK) {
+                                echo "❌ Échec final après recréation. Logs de n8n :"
+                                sh "docker logs ${env.N8N_CONTAINER} || true"
+                                error "n8n injoignable sur ${env.N8N_URL}"
+                            }
+                            echo "✅ n8n : OK"
                         }
                     }
                 }
@@ -239,6 +258,32 @@ print('OK:', '$f')
                             echo "Botpress : ${botpressOK ? 'OK' : 'AVERTISSEMENT (non bloquant)'}"
                         }
                     }
+                }
+            }
+        }
+
+        stage('4.5. Configuration du Workflow n8n') {
+            steps {
+                script {
+                    echo "📥 Importation et activation automatique du workflow dans n8n..."
+                    sh """
+                    docker cp Wathiqa.json ${env.N8N_CONTAINER}:/tmp/Wathiqa.json
+                    docker exec -u node ${env.N8N_CONTAINER} n8n import:workflow --input=/tmp/Wathiqa.json
+                    docker exec -u node ${env.N8N_CONTAINER} n8n update:workflow --all --active=true
+                    docker restart ${env.N8N_CONTAINER}
+                    """
+
+                    echo "⏳ Attente du redémarrage de n8n..."
+                    sleep 5
+                    def n8nOK = false
+                    for (int i = 1; i <= 6; i++) {
+                        n8nOK = (sh(script: "curl -sf --max-time 5 ${env.N8N_URL}/healthz || curl -sf --max-time 5 ${env.N8N_URL}", returnStatus: true) == 0)
+                        if (n8nOK) break
+                        echo "n8n en cours de redémarrage (tentative ${i}/6)..."
+                        sleep 5
+                    }
+                    if (!n8nOK) error "❌ n8n n'a pas pu redémarrer après l'import du workflow"
+                    echo "✅ n8n est prêt avec le workflow actif !"
                 }
             }
         }

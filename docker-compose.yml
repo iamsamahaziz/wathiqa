@@ -1,0 +1,41 @@
+name: wathiqa
+
+services:
+
+  # ─── Qdrant (Base de données vectorielle Wathiqa) ───
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6334:6333"  # Port exposé de production pour Wathiqa
+    volumes:
+      - qdrant_ia_data:/qdrant/storage
+    networks:
+      - ia_network
+    restart: unless-stopped
+
+  # ─── n8n (Moteur de workflows pour Wathiqa) ───
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    ports:
+      - "5679:5678"  # Port exposé de production pour Wathiqa
+
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_METRICS=true
+    volumes:
+      - n8n_ia_data:/home/node/.n8n
+    networks:
+      - ia_network
+    restart: unless-stopped
+
+networks:
+  ia_network:
+    external: true  # Réseau partagé par Jenkins et la stack Wathiqa
+
+volumes:
+  qdrant_ia_data:
+  n8n_ia_data:
